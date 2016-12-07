@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <title>Inline
+    </title>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="inc/css/main.css">
+  </head>
+  <body>
+    <header>
+      <nav id="hamburger">
+        <ul>
+        <li><a href="#">1 Menüpunkt</a>
+          <ul>
+              <li><a href="#">1.1 Menüpunkt</a></li>
+              <li><a href="#">1.2 Menüpunkt</a></li>
+              <li><a href="#">1.3 Menüpunkt</a></li>
+          </ul>
+        </li>
+        <li><a href="#">2 Menüpunkt</a></li>
+        <li class="open">
+            <a href="#">3 Offener Strang</a>
+            <ul>
+                <li><a href="#">3.1 Menüpunkt</a></li>
+                <li class="active"><a href="#">3.2 angewählter Menüpunkt</a></li>
+                <li><a href="#">3.3 Menüpunkt</a></li>
+            </ul>
+        </li>
+        <li><a href="#">4 Menüpunkt</a></li>
+        </ul>
+      </nav>
+      <h1>stats time.log-box</h1>
+    </header>
+    <main>
+      <section class="stats">
+        <header><h2>Filter</h2>
+          <form method="post" name="entry_form">
+              <select name="employees_id">
+                  <option value="all">Alle Mitarbeitenden</option>
+                  <option value="3">Marco Agovino</option>
+                  <option value="4">Florian Jaton</option>
+                  <option value="5">Ralf Grubenmann</option>
+              </select>
+              <select name="project_id">
+                <option value="all">Alle Projekte</option>
+                <option value="9">Log-Box, Universal Link</option>
+                <option value="10">Redesign Web, Swisscom AG</option>
+                <option value="11">Mobile App, Kuster AG</option>
+                <option value="12">Req. Analyse, FHNW</option>
+                <option value="14">Int. Buchhaltung</option>
+                <option value="15">Int. Diversa</option>
+              </select>
+              <label>von</label><input id="datepickerFrom" name="beginn_date" size="12" value="2016-12-07" class="hasDatepicker" type="text">
+              <label>bis</label><input id="datepickerTo" name="end_date" size="12" value="2016-12-07" class="hasDatepicker" type="text">
+              <label>txt</label><input id="search_text" name="search_text" size="12" value="" type="text">
+              <input title="Reset" class="button" name="resetButton" value="Reset" type="button">
+              <input title="Send" class="button" name="sendButton" value="Send" type="button">
+          </form>
+        </header>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+ <script type="text/javascript">
+   google.charts.load("current", {packages:['corechart']});
+   google.charts.setOnLoadCallback(drawChart);
+   function drawChart() {
+
+     var data = google.visualization.arrayToDataTable([
+            ['WEEKDAY','Log-Box, Universal Link',
+             'Redesign Web, Swisscom AG',
+             'Mobile App, Kuster AG',
+             'Req. Analyse, FHNW',
+             'Int. Buchhaltung',
+             'Int. Diversa'],
+            ['Mo.', 2, 1, 3, 1, 0, 0],
+            ['Di.', 3, 0.5, 1, 1, 0, 0],
+            ['Mi.', 0.5, 4, 6, 0, 0, 0],
+            ['Do.', 1, 0.25, 1, 2, 0, 0],
+            ['Fr.', 0.5, 1, 2, 1, 0, 1],
+            ['Sa.', 0, 0, 0, 0,3,0.5,]
+          ]);
+
+     var view = new google.visualization.DataView(data);
+     //view.setColumns([0,1,2,3,4,5,6])
+
+     var options = {
+       title: "Worked actual week:",
+       width: 800,
+       height: 600,
+       legend: { position: 'top', maxLines: 4 },
+       bar: { groupWidth: '75%' },
+       isStacked: true,
+     };
+
+     var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
+     chart.draw(view, options);
+ }
+ </script>
+<div id="columnchart_values" style="width: 100%; height: 30%;"></div>
+      </section>
+    </main>
+    <footer>
+      <nav id="quicklinks">
+        <ul>
+        <li><a href="stats.html"><img src="inc/img/stats_icon_trans.png" class="nav icon"/>stats</a></li>
+        <li><a href="main.html"><img src="inc/img/stats_icon_trans.png" class="nav icon"/>home</a></li>
+        <li><a href="login.html"><img src="inc/img/stats_icon_trans.png" class="nav icon"/>logout</a></li>
+        </ul>
+      </nav>
+      </nav>
+    </footer>
+  </body>
