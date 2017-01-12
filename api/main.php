@@ -2,12 +2,7 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;       
 require 'vendor/autoload.php';
-
-$config['displayErrorDetails'] = true;
-$config['db']['host']   = "db1.sylon.net";
-$config['db']['user']   = "c297webec";
-$config['db']['pass']   = "W3b3C16!";
-$config['db']['dbname'] = "c297webec";
+include_once 'config/config.inc.php';
 
 $app = new \Slim\App(["settings" => $config]);
 
