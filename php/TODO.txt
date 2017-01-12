@@ -1,0 +1,15 @@
+﻿ToDo's:
+*******
+-Den Benutzer Projekte zuordnen
+-Den Projekten Arbeitskategorien zuordnen
+-xss-safe
+-sessioning sauber
+-admin/user view in Framework implementieren
+-DB-Constarints sauber abfangen und entsprechende Löschroutinen implemetieren
+-jquery & ui auf webserver und nicht verlinkt
+-nightly rebuild ab https://github.com/flojat/time.log-box
+-hart programmierte links in globale COnfig schmeissen oder anders lösen(login usw.)
+-Versuch darstellung auswertung mit google charts
+-Letzte gewählte Werte bei Auswertungen speichern, damit man die Suche nicht immer neu eingeben muss!
+-Standby wird beim ersten Laden im prototype_hw_lcd.php nicht korrekt angezeigt.
+

@@ -1,0 +1,290 @@
+body{
+font-family: 'Arial', 'Verdana', sans-serif;
+font-size: 100%;
+}
+
+h1{
+  position: fixed;
+  right: 0.5em;
+  bottom: 0;
+  color:whitesmoke;
+
+
+}
+a{
+  text-decoration: none;
+  color: black;
+}
+a:hover{
+  border-bottom: 1px dotted black;
+  color: black;
+}
+.top {
+  background: whitesmoke none repeat scroll 0 0;
+}
+.nav {
+  list-style:none;
+  width: 200px;
+}
+.top .nav {
+  padding:0;
+  width: auto;
+}
+.top .nav li {
+  display: inline-block;
+  border: gray solid 1px;
+  padding:2px;
+  background-color: whitesmoke;
+  cursor:pointer;
+  margin:5px;
+}
+.top .nav li:hover {
+  border-top: gray solid 1px;
+  border-left: gray solid 1px;
+  border-bottom: none;
+  border-right: none;
+  padding-right: : 0;
+  padding-bottom: 0;
+  padding-top: 0;
+}
+.top .nav li:active {
+  border-top: gray solid 2px;
+  border-left: gray solid 2px;
+  border-bottom: none;
+  border-right: none;
+  padding-right: : 0;
+  padding-bottom: 0;
+  padding-top: 0;
+}
+
+.top .nav li a, .top .nav li a:hover{
+  text-decoration: none;
+  border: none;
+  font-weight: normal;
+}
+
+.main.nav li:hover {
+  font-weight: bold;
+  color: green;
+}
+.main.nav li span {
+  color: white;
+}
+
+.main.nav li:hover span {
+  color: red;
+}
+
+.main.nav li:hover li {
+  font-weight: normal;
+  color: black;
+}
+
+
+.main.nav li li a{
+  padding:0.1em;
+}
+
+.main.nav li li a:hover{
+  border-bottom: 1px solid black;
+  color:white;
+  background-color: black;
+}
+
+
+.entries.table.edit {
+  border: 1px solid whitesmoke;
+  margin: auto;
+  width: 300px;
+}
+
+.main {
+  margin: auto;
+  width: 340px;
+}
+
+.logbox{
+  width:320px;
+  border: solid 10px #000;
+}
+.logbox.lcd{
+  /*background: #000 url('/phplogbox/time/inc/lcd-display_295px_leer.jpg') no-repeat center middle;*/
+  background-image: url('lcd-display_295px_leer.jpg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: #000;
+  height: 110px;
+}
+
+.logbox.lcd .info {
+  font-family: 'Lucida Console', Monaco, monospace;
+  font-size: 1.5em;
+  line-height: 1.5em;
+  margin: 0.75em 1.5em;
+}
+
+.logbox button {
+  border: 1px solid gray;
+  font-family: "Just Another Hand",cursive;
+  font-size: 1.8em;
+  height: 1.4em;
+  width: 50%;
+  cursor: pointer;
+}
+
+
+font-family: 'Just Another Hand', cursive;
+
+#edit_table{
+  width: 300px;
+}
+
+.trh {
+  margin: 0.5em;
+  padding:0.25em;
+}
+.trh:hover {
+  background-color: whitesmoke;
+}
+
+
+label {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+}
+
+#selectarea label, #selectarea input{
+  margin:auto;
+  display:inline;
+  width: auto;
+}
+
+input, select {
+    width: 180px;
+}
+input:active,input:focus,input:hover {
+  background-color: antiquewhite;
+  border-color: whitesmoke;
+}
+input.button,input.checkbox {
+  width: auto;
+}
+/*input:-moz-read-only, input:-moz-read-only:focus, input:-moz-read-only:hover, input:-moz-read-only:active, input.button:disabled {
+  color: gray;
+  background-color: whitesmoke;
+  border-color: whitesmoke;
+}
+input.button{
+  color: black;
+}
+*/
+
+.entries tr {
+    margin: 0;
+    padding: 2px 5px 2px 5px;
+    background-color: #ddd;
+}
+.entries tr:hover {
+    background-color: #444;
+}
+.entries tr:hover td  {
+    color: #fff;
+}
+
+.entries th {
+    margin: 0;
+    padding: 2px 5px 2px 5px;
+    background-color: #ddd;
+}
+
+.entries td {
+    margin: 0;
+    padding: 2px 5px 2px 5px;
+    vertical-align: top;
+}
+.entries th a, th {
+    color: #444;
+}
+.entries th, td, div {
+
+}
+/*
+input, button{
+    border:1px solid #ddd;
+    font-size: 1em;
+}
+button{
+    font-size: 1.5em;
+}
+textarea {
+    border:1px solid #ddd;
+    font-size: 1em;
+    font-family: 'Arial', 'Verdana', sans-serif;
+    width:99%;
+}
+input.button {
+    border: 1px solid gray;
+}
+.edit input.button {
+    width: 28%;
+    margin: auto;
+}
+
+input.button:hover {
+    border-left: 1px solid white;
+    border-top: 1px solid white;
+    border-bottom:1px solid gray;
+    border-right:1px solid gray;
+}
+input.button:disabled{
+    background-color: #ccc;
+}
+input.checkbox {
+    border: none;
+    margin: 1px;
+    padding: 0;
+}
+select {
+    margin: 1px;
+    padding: 0;
+    font-size: 1em;
+}
+
+
+
+div.table {
+    display: table;
+    border-collapse: collapse;
+}
+
+div.tr, div.trh {
+    display: table-row;
+    background-color: #ddd;
+}
+div.tr:hover {
+    display: table-row;
+    background-color: #444;
+}
+
+div.tr:hover .td{
+    color: #fff;
+}
+
+div.th {
+    display: table-cell;
+    border: 2px solid white;
+    padding: 5px;
+    font-weight:bold;
+}
+
+div.td {
+    display: table-cell;
+    border: 2px solid white;
+    padding: 5px;
+    white-space:nowrap;
+}
+div.td.nowrap {
+    white-space:nowrap;
+}
+*/
