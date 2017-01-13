@@ -27,7 +27,7 @@ $app->get('/projects', function (Request $request, Response $response) {
     // client_logo(img), client_name(String),  client_project_owner_id(String), 
     // client_project_owner_name(String), client_project_owner_tel(String),
 
-    $jsonData="";
+    $jsonData="[";
     $sqlquery="SELECT p.id project_id, p.name project_name, c.id client_id, 
                       c.logo client_logo, c.company client_name, 
                       c.id client_project_owner_id, concat(c.name,' ',c.firstname) 
@@ -36,9 +36,11 @@ $app->get('/projects', function (Request $request, Response $response) {
                WHERE p.client_id = c.id ";
     $stmt = $this->db->query($sqlquery); 
     while($row = $stmt->fetch()) {
-      $jsonData .= json_encode($row);    
+      $jsonData .= json_encode($row).",";    
     }
-               
+    //FIXME: replace that String hack with a solkution that generates a clean and secure JSON
+    $jsonData = substr_replace($jsonData, "]", strrpos ( $jsonData , ",")); 
+          
     $response->getBody()->write($jsonData);   
     return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
 });
@@ -61,9 +63,14 @@ $app->get('/openentry', function (Request $request, Response $response) {
 
       $sqlquery="SELECT `project_id`,`start` FROM `entries` WHERE `logbox_mac`='$logbox_mac' AND `user_id`=$user_id AND stop IS NULL";
       $stmt = $this->db->query($sqlquery); 
+	  
+	  $jsonData="[";
+	  
       while($row = $stmt->fetch()) {
-        $jsonData .= json_encode($row);    
+        $jsonData .= json_encode($row).",";    
       }
+	  
+	  $jsonData = substr_replace($jsonData, "]", strrpos ( $jsonData , ",")); 
       
     $response->getBody()->write($jsonData);   
     return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
