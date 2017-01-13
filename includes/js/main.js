@@ -37,7 +37,18 @@ function Main() {
 			
 			self.renderExternalTmpl({ name: 'projectListTemplate', selector: '#gridlist', data: data });
 		});
+		
+		self.updateTimes();
 	};
+	
+	this.updateTimes = function(){
+		$('#gridlist li .right-column button.lockTime').each(function(i, e){
+			time = $(e).attr('starttime');
+			$(e).html(self.getTimeDifference(new Date().getTime(), Date.parse(time)))
+		});
+		
+		setTimeout(self.updateTimes, 2000);
+	}
 	
 	this.getTimeDifference = function(date1, date2){
 		difference = (date1 - date2)/1000;
