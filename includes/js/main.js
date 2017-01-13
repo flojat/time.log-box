@@ -17,6 +17,8 @@ function Main() {
 	this.showProjectList = function()
 	{
 		self.apiClient.getProjects(function(data){
+			$('#gridlist').off('click', 'button', self.projectButtonClick);
+			
 			data = $.map(data, function(val, i){
 				activeEntry = $.grep(self.openEntries, function(e){return e.project_id == val.project_id});
 				
@@ -36,9 +38,18 @@ function Main() {
 			});
 			
 			self.renderExternalTmpl({ name: 'projectListTemplate', selector: '#gridlist', data: data });
+			
+			$('#gridlist').on('click', 'button', self.projectButtonClick);
 		});
 		
 		self.updateTimes();
+	};
+	
+	this.projectButtonClick = function(e){
+		projectid = $(e.target.closest('li')).attr('project-id')
+		self.apiClient.postStartEntry(projectid, 0, function(){
+			self.showProjectList();
+		});
 	};
 	
 	this.updateTimes = function(){
