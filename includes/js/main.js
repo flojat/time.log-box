@@ -6,12 +6,18 @@ function Main() {
 	this.apiClient = new ApiClient();
 	this.openEntries = [];
 	
+	$('.footer button.standBy').click(this.standBy);
+	
 	this.loadProjects = function(){
+		$('.footer button.standBy').off("click");
+		
 		self.apiClient.getOpenEntry(function(data){
 			self.openEntries = data;
 			
 			self.showProjectList();
 		});
+		
+		$('.footer button.standBy').click(this.standBy);
 	};
 	
 	this.showProjectList = function()
@@ -48,8 +54,20 @@ function Main() {
 	this.projectButtonClick = function(e){
 		projectid = $(e.target.closest('li')).attr('project-id')
 		self.apiClient.postStartEntry(projectid, 0, function(){
-			self.showProjectList();
+			self.loadProjects();
 		});
+	};
+	
+	this.standBy = function(e){
+		//get active project
+		active = $("#gridlist li[active='true']");
+		
+		if(active){
+			projectid = active.attr('project-id');
+			self.apiClient.postStartEntry(projectid, 1, function(){
+				self.loadProjects();
+			});
+		}
 	};
 	
 	this.updateTimes = function(){
