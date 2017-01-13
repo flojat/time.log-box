@@ -1,0 +1,25 @@
+<li class="list" project-id="{{:projectid}}">
+
+	<div class="logo-column">
+
+	<img class="pic" src="{{:projectimage}}">
+
+	</div>
+
+	<div class="left-column">
+
+		{{:companyname}}: <br/> {{:projectname}} <br/>
+
+		{{:clientprojectownername}}
+
+		<a class="tel" href="callto:{{:clientphone}}">{{:clientphone}}</a><hr>
+
+	</div>
+
+	<div class="right-column">
+
+		<button class="{{if active}}lockTime{{else}}standBy{{/if}}" type="button" onklick="">{{if active}}{{:time}}{{else}}Stand By{{/if}}</button>
+
+	</div>
+
+</li>

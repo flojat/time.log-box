@@ -19,6 +19,16 @@
       <!-- Link = jQuery library -->
 
       <script src="includes/js/jquery-3.1.1.js"></script>
+	  
+	  <!-- Link = jsRender library -->
+
+      <script src="includes/js/jsrender.js"></script>
+	  
+	  <!-- Link api client -->
+	  <script src="includes/js/api.js"></script>
+	  
+	  <!-- Link api client -->
+	  <script src="includes/js/main.js"></script>
 
       <link rel="stylesheet" href="includes/css/font-awesome/css/font-awesome.min.css">
 
@@ -27,6 +37,13 @@
 
 
       <!--<link rel="icon" href="/favicon.ico" type="image/x-icon"> -->
+	  
+	  <script type="text/javascript">
+		$(document).ready(function(){
+			main = new Main();
+			main.loadProjects();
+		});
+	  </script>
 
 
 
@@ -69,190 +86,6 @@
 
 
           <ul id="gridlist">
-
-            <li class="list">
-
-                <div class="logo-column">
-
-                <img class="pic" src="includes/images/one.jpg">
-
-                </div>
-
-                <div class="left-column">
-
-                    Firma Hans AG: <br/> Projekt Prototypin <br/>
-
-                    Johannes Ackermann-Hasler
-
-                    <a class="tel" href="callto:+4179 123 45 67">+41 79 123 45 67</a><hr>
-
-                </div>
-
-                <div class="right-column">
-
-                    <button class="lockTime" type="button" onklick="">10:23</button>
-
-                </div>
-
-            </li>
-
-              <li class="list">
-
-                <div class="logo-column">
-
-                    <img class="pic" src="includes/images/two.jpg">
-
-                </div>
-
-                <div class="left-column">
-
-                    Firma Fritz AG: <br/> Projekt Prototypin <br/>
-
-                    Johannes Ackermann-Hasler
-
-                    <a class="tel" href="callto:+4179 123 45 67">+41 79 123 45 67</a><hr>
-
-                </div>
-
-                <div class="right-column">
-
-                    <button class="standBy" type="button" onklick=""> Stand By </button>
-
-                </div>
-
-              </li>
-
-              <li class="list">
-
-                <div class="logo-column">
-
-                    <img class="pic" src="includes/images/three.jpg">
-
-                </div>
-
-                <div class="left-column">
-
-                    Firma Johann AG: <br/> Projekt Prototypin <br/>
-
-                    Johannes Ackermann-Hasler
-
-                    <a class="tel" href="callto:+4179 123 45 67">+41 79 123 45 67</a><hr>
-
-                </div>
-
-                <div class="right-column">
-
-                    <button class="standBy" type="button" onklick=""> Stand By </button>
-
-                </div>
-
-              </li>
-
-              <li class="list">
-
-                <div class="logo-column">
-
-                    <img class="pic" src="includes/images/four.jpg">
-
-                </div>
-
-                <div class="left-column">
-
-                    Firma Meyer AG: <br/> Projekt Prototypin <br/>
-
-                    Johannes Ackermann-Hasler
-
-                    <a class="tel" href="callto:+4179 123 45 67">+41 79 123 45 67</a><hr>
-
-                </div>
-
-                <div class="right-column">
-
-                    <button class="standBy" type="button" onklick=""> Stand By </button>
-
-                </div>
-
-              </li>
-
-              <li class="list">
-
-                <div class="logo-column">
-
-                    <img class="pic" src="includes/images/five.jpg">
-
-                </div>
-
-                <div class="left-column">
-
-                    Firma Hans AG: <br/> Projekt Prototypin <br/>
-
-                    Johannes Ackermann-Hasler
-
-                    <a class="tel" href="callto:+4179 123 45 67">+41 79 123 45 67</a><hr>
-
-                </div>
-
-                <div class="right-column">
-
-                    <button class="standBy" type="button" onklick=""> Stand By </button>
-
-                </div>
-
-              </li>
-
-              <li class="list">
-
-                  <div class="logo-column">
-
-                      <img class="pic" src="includes/images/one.jpg">
-
-                  </div>
-
-                  <div class="left-column">
-
-                      Firma Hans AG: <br/> Projekt Prototypin <br/>
-
-                      Johannes Ackermann-Hasler
-
-                      <a class="tel" href="callto:+4179 123 45 67">+41 79 123 45 67</a><hr>
-
-                  </div>
-
-                  <div class="right-column">
-
-                      <button class="standBy" type="button" onklick=""> Stand By </button>
-
-                  </div>
-
-              </li>
-
-              <li class="list">
-
-                  <div class="logo-column">
-
-                      <img class="pic" src="includes/images/two.jpg">
-
-                  </div>
-
-                  <div class="left-column">
-
-                      Firma Fritz AG: <br/> Projekt Prototypin <br/>
-
-                      Johannes Ackermann-Hasler
-
-                      <a class="tel" href="callto:+4179 123 45 67">+41 79 123 45 67</a><hr>
-
-                  </div>
-
-                  <div class="right-column">
-
-                      <button class="standBy" type="button" onklick=""> Stand By </button>
-
-                  </div>
-
-              </li>
-
-
 
           </ul>
 
