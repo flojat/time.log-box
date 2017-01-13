@@ -18,6 +18,60 @@ $container['db'] = function ($c) {
 }; 
 
 
+$app->get('/stats/week', function (Request $request, Response $response) {
+    
+/*OPTIONAL;
+of_category_id Array of int(11)
+project_id int(11)
+search_text varchar(255)
+start_date date
+end_date date
+user_id int(11) (just if admin!)"	"get List of all Entries of that user within actual Week(7days)
+is used to show worked time this week"
+
+
+1) Liste der Projekte in der aktuellen Woche:
+
+SELECT  p.id 
+from entries e, projects p
+where `user_id` =5  AND e.project_id = p.id AND DATE_FORMAT(NOW(),"%U")=DATE_FORMAT(start,"%U")
+group by p.name 
+
+('11','10','9')
+
+2) Liste der Tage mit Einträgen in der aktuellen Woche:
+
+('Mon','Tue','Wed','Thu','Fri','Sat','Sun')
+*/
+
+    
+    
+    $jsonData="";
+    $dayOfWeek =  array('Mon','Tue','Wed','Thu','Fri','Sat','Sun');
+    $projectsWithProgress =  array(9,10,11);
+    $user_id=3;
+    
+    
+    foreach ($dayOfWeek as &$day) {
+        foreach ($projectsWithProgress as &$proj) {
+        $sqlquery="SELECT sum(round((TIME_TO_SEC(TIMEDIFF(`stop`,`start`))/60/60),2)) from entries e where `user_id`=$user_id AND DATE_FORMAT(`start`,'%a')='$day' AND e.project_id=$proj";
+        $jsonData .= $sqlquery." ";
+        }
+    }
+
+    //$stmt = $this->db->query($sqlquery); 
+    //while($row = $stmt->fetch()) {
+    //  $jsonData .= json_encode($row).",";    
+    //}
+    //FIXME: replace that String hack with a solkution that generates a clean and secure JSON
+    //$jsonData = substr_replace($jsonData, "]", strrpos ( $jsonData , ",")); 
+          
+    $response->getBody()->write($jsonData);   
+    return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
+});
+
+
+
   
 
 $app->get('/projects', function (Request $request, Response $response) {
