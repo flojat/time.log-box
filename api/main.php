@@ -45,10 +45,33 @@ $app->get('/projects', function (Request $request, Response $response) {
 
 
 
-/*
 
-Bitte so lassen ;-)
-Danke & Gruss Flo
+$app->get('/openentry', function (Request $request, Response $response) {
+   
+  /*
+  * needs logbox_mac varchar(255), user_id int(11) from JWT-Token
+  * check for a open entry and return project_id and start datetimestamp if found
+  * used to mark project-logbutton green an set open-timestamp
+  */
+      $getParams = $request->getQueryParams();
+      
+      //FIXME: take values from JWT-Token
+      $user_id = ($getParams['user_id'] != "") ? (int)$getParams['user_id'] : 3;
+      $logbox_mac = ($getParams['logbox_mac'] != "") ? $getParams['logbox_mac'] : "138.174.117.190";
+
+      $sqlquery="SELECT `project_id`,`start` FROM `entries` WHERE `logbox_mac`='$logbox_mac' AND `user_id`=$user_id AND stop IS NULL";
+      $stmt = $this->db->query($sqlquery); 
+      while($row = $stmt->fetch()) {
+        $jsonData .= json_encode($row);    
+      }
+      
+    $response->getBody()->write($jsonData);   
+    return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
+});
+
+
+
+
 
 $app->post('/project/entry', function (Request $request, Response $response) {
    
@@ -61,76 +84,48 @@ $app->post('/project/entry', function (Request $request, Response $response) {
 //category int(11), notes varchar(255)  
 
 
-      
-      $jsonData="";  
-      $project_id = $request->getAttribute('id');     
+      $jsonData="";
       $bodyData = $request->getParsedBody();
-      $user_id = filter_var($bodyData['user_id'], FILTER_SANITIZE_STRING);
+      $user_id = (int)filter_var($bodyData['user_id'], FILTER_SANITIZE_STRING);
       $logbox_mac = filter_var($bodyData['logbox_mac'], FILTER_SANITIZE_STRING);
+      $project_id = (int)filter_var($bodyData['project_id'], FILTER_SANITIZE_STRING);
       $go_to_standby = filter_var($bodyData['go_to_standby'], FILTER_SANITIZE_STRING);
-      
-      $jsonData .="!---$bodyData, $project_id, $user_id, $logbox_mac, $go_to_standby---!";
       
       $logbox_ip = "unset";
       if (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] !=""){
           $logbox_ip = $_SERVER['REMOTE_ADDR'];
       }
-        
-
-//      $project_id = $request->getAttribute('id');
-//      $user_id = $request->getAttribute('user_id');
-//     $jsonData .= "|--".$parsedBody ."--".$user_id."--|";
-//      $logbox_mac = $request->getAttribute('logbox_mac');      
-//      $logbox_ip = "unset";
-//      if (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] !=""){
-//          $logbox_ip = $_SERVER['REMOTE_ADDR'];
-//      }
-//      $go_to_standby = $request->getAttributes('go_to_standby');
-
       
-  //IF entrey has no STOP timestamp set it
-      $sqlquery="SELECT `id`,`logbox_mac`,`project_id`,`user_id`,`stop` FROM `entries`
-                 WHERE `logbox_mac` = $logbox_mac 
-                 AND `project_id` = $project_id 
-                 AND `user_id` = $user_id 
-                 AND stop IS NULL";
-      $query=mysql_query($sqlquery);          
-      if(@mysql_num_rows($query)>0){
-        list($entry_id, $logged_logbox_mac, $logged_project_id, $logged_user_id, $stop)=mysql_fetch_row($query);
-        $query=mysql_query("UPDATE `entries` set `stop` = NOW() WHERE `id`= $entry_id");
+     //$jsonData.= $user_id." | ".$project_id." | ".$logbox_mac." | ".$go_to_standby." | ".$logbox_ip;
+      
+//IF entrey has no STOP timestamp set it
+      $sqlquery="SELECT `id`,`logbox_mac`,`project_id`,`user_id`,`stop` FROM `entries` WHERE `logbox_mac`='$logbox_mac' AND `project_id`=$project_id AND `user_id`=$user_id AND stop IS NULL";
+      $stmt = $this->db->query($sqlquery); 
+      while($row = $stmt->fetch()) { 
+        $updatestmt = $this->db->query("UPDATE `entries` set `stop` = NOW() WHERE `id`=".$row['id']);
       }
 
+//then insert a new entry with just the START timestamp, if not have to go to standby   
+      if($go_to_standby == 0){
+        $sqlquery="INSERT INTO `entries` (`logbox_mac`,`logbox_ip`,`project_id`,`user_id`,`start`) values('$logbox_mac', '$logbox_ip', $project_id, $user_id, NOW())";
+        $stmt = $this->db->query($sqlquery); 
+      }
       
-  //then insert a new entry wit just the START timestamp, if not have to go to standby   
-      if($go_to_standby = 1){
-        $sqlquery="INSERT INTO `entries` (`logbox_mac`,`logbox_ip`,`project_id`,`user_id`,`start`) values($logbox_mac, $logbox_ip, $project_id, $user_id, NOW())";
-        $jsonData .= $sqlquery;
-        $query=mysql_query($sqlquery);
-        $jsonData .= mysql_error(); 
-      } 
-
-      
-  //get the actual Project to return
-      $sqlquery="SELECT p.id, p.name, c.id, c.logo, c.company, c.id, concat(c.name,' ',c.firstname) name, c.phone 
+//get the actual Project to return
+      $sqlquery="SELECT p.id project_id, p.name project_name, c.id client_id, 
+                        c.logo client_logo, c.company client_name, 
+                        c.id client_project_owner_id, concat(c.name,' ',c.firstname) 
+                        client_project_owner_name, c.phone client_project_owner_tel
                FROM `projects` p,`clients` c  
-               WHERE p.id = $project_id
-               AND p.client_id = c.id "; 
-                              
-      $query=mysql_query($sqlquery);
-      
-      if(@mysql_num_rows($query)>0){
-          for($i=0; list($project_id, $project_name, $client_id, $client_logo, $client_name, $client_project_owner_id, $client_project_owner_name, $client_project_owner_tel)= mysql_fetch_row($query);$i++) {
-           $jsonData .="{project_id:'$project_id', project_name:'$project_name', client_id:'$client_id', client_logo:'$client_logo', client_name:'$client_name',client_project_owner_id:'$client_project_owner_id',client_project_owner_name:'$client_project_owner_name',client_project_owner_tel:'$client_project_owner_tel'}\n";   
-          }
-      }    
-             
-    //$jsonData .= mysql_error(); 
-      
-    //$response->getBody()->write($jsonData);
-    $response->getBody()->write(json_encode($jsonData));
-    return $response->withHeader('Content-Type', 'application/json');
+               WHERE p.id = $project_id AND p.client_id = c.id"; 
+      $stmt = $this->db->query($sqlquery); 
+      while($row = $stmt->fetch()) {
+        $jsonData .= json_encode($row);    
+      }
+
+    $response->getBody()->write($jsonData);   
+    return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
 });
-*/
 
 
 $app->run();
