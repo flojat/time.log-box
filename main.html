@@ -27,7 +27,7 @@
 	  <!-- Link api client -->
 	  <script src="includes/js/api.js"></script>
 	  
-	  <!-- Link api client -->
+	  <!-- Link main page handling javascript -->
 	  <script src="includes/js/main.js"></script>
 
       <link rel="stylesheet" href="includes/css/font-awesome/css/font-awesome.min.css">
@@ -38,10 +38,11 @@
 
       <!--<link rel="icon" href="/favicon.ico" type="image/x-icon"> -->
 	  
+	  <!-- Initialize Page -->
 	  <script type="text/javascript">
 		$(document).ready(function(){
 			main = new Main();
-			main.loadProjects();
+			main.setupProjectsPage();
 		});
 	  </script>
 
@@ -105,7 +106,7 @@
 
               <li class="list"><button class="standBy" type="button" onklick=""> Stop </button></li>
 
-              <li style="float:right"><a class="list-group-item" href="logIn.html"><i class="fa fa-sign-out fa-fw" aria-hidden="true"></i>&nbsp; logut</a></li>
+              <li style="float:right"><a class="list-group-item" href="#" id="logout"><i class="fa fa-sign-out fa-fw" aria-hidden="true"></i>&nbsp; logout</a></li>
 
           </ul>
 

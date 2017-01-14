@@ -29,6 +29,14 @@
 	  <script src="includes/js/main.js"></script>
 
       <link rel="stylesheet" href="includes/css/font-awesome/css/font-awesome.min.css">
+	  
+	  <!-- Initialize Page -->
+	  <script type="text/javascript">
+		$(document).ready(function(){
+			main = new Main();
+			main.setupLoginPage();
+		});
+	  </script>
 </head>
 
 <body>
@@ -60,13 +68,7 @@
         <br/>
         <input type="password" id="password">
         <br/>
-        <label for="deviceID">Device ID</label>
-        <br/>
-        <input type="text" id="deviceID">
-        <br/>
-        <button type="submit">Sign In</button>
-        <br/>
-        <a href="#"><p class="small">Forgot your password?</p></a>
+        <button id="login" type="submit">Sign In</button>
     </div>
 </section>
 
