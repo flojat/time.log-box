@@ -6,7 +6,62 @@ function Main() {
 	this.apiClient = new ApiClient();
 	this.openEntries = [];
 	
-	$('.footer button.standBy').click(this.standBy);
+	/* sets up everything for the Projects page */
+	this.setupProjectsPage = function(){	
+		$('.footer button.standBy').click(this.standBy);
+		
+		self.loadProjects();
+	};
+	
+	/* sets up everything for the statistics page */
+	this.setupStatisticsPage = function(){
+		//initialize filter datepickers
+		self.setDatepickerDate();
+		
+		$("#datepickerFrom").datepicker({dateFormat: "yy-mm-dd"});
+		$("#datepickerTo").datepicker({dateFormat: "yy-mm-dd"});
+		
+		//setup buttons
+		$("#reset.button").click(self.setDatepickerDate);
+		$("#send.button").click(self.drawChart);
+		
+		//load google charts
+		google.charts.load("current", {packages: ['corechart']});
+		google.charts.setOnLoadCallback(self.drawChart);
+	};
+	
+	this.drawChart = function() {
+		var from = new Date($("#datepickerFrom").val());
+		var to = new Date($("#datepickerTo").val());
+		
+		self.apiClient.getStats({start_date: from.toJSON(), end_date: to.toJSON()}, function(statisticsData){
+			var data = google.visualization.arrayToDataTable(statisticsData);
+
+			var view = new google.visualization.DataView(data);
+
+			var options = {
+				title: "Worked actual week:",
+				width: 340,
+				height: 400,
+				legend: {position: 'top', maxLines: 4},
+				bar: {groupWidth: '75%'},
+				isStacked: true,
+			};
+
+			var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
+			chart.draw(view, options);
+		});
+	}
+	
+	/* Sets fromdate to 1 week ago and to date to today for datepickers in statistics filter */
+	this.setDatepickerDate = function(){
+		var to = new Date();
+		var from = new Date();
+		from.setDate(from.getDate()-7);
+		
+		$("#datepickerFrom").val(from.getFullYear()+'-'+self.pad(from.getMonth()+1, 2)+'-'+self.pad(from.getDate(), 2));
+		$("#datepickerTo").val(to.getFullYear()+'-'+self.pad(to.getMonth()+1, 2)+'-'+self.pad(to.getDate(), 2))
+	};
 	
 	/* Gets currently open entries and then loads projects */
 	this.loadProjects = function(){

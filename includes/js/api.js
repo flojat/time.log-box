@@ -7,6 +7,7 @@ function ApiClient(){
 	this.projectEndpoint = "project"
 	this.entryEndpoint = "entry"
 	this.openEntryEndpoint = "openentry"
+	this.statsEndpoint = "stats"
 	
 	/* gets a list of current projects from the server */
 	this.getProjects = function(callback){
@@ -38,6 +39,18 @@ function ApiClient(){
 			method: "POST",
 			contentType: "application/json",
 			data: {project_id: projectid, go_to_standby: standby}
+		}).done(function(data) {
+		   callback(data);
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+		   alert( "error" );
+		});
+	}
+	
+	/* gets time stats for the current user */
+	this.getStats = function(params, callback){
+		$.ajax({
+			url: this.apiUrl + this.statsEndpoint + "/week",
+			data: params
 		}).done(function(data) {
 		   callback(data);
 		}).fail(function(jqXHR, textStatus, errorThrown) {
