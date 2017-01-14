@@ -160,9 +160,10 @@ $app->get('/openentry', function (Request $request, Response $response) {
 
 $app->post('/project/entry', function (Request $request, Response $response) {
    
-//"Insert new entry for Project by ID with actual Timestamp
+//Insert new entry for Project by ID with actual Timestamp
 //has to close a previous open Entry of that user with actual Timestamp
-//is used to reopen new entry in same/other project (stop-watch-like)"	
+//is used to open or reopen new entry in same/other project (stop-watch-like)	
+// and stop logging time by sending "go_to_standby":1
 
 //200, single entry: id int(11), logbox_mac varchar(255), logbox_ip varchar(255), 
 //project_id int(11), user_id int(11), start datetime, stop datetime, 
@@ -187,8 +188,9 @@ $app->post('/project/entry', function (Request $request, Response $response) {
       
      //$jsonData.= $user_id." | ".$project_id." | ".$logbox_mac." | ".$go_to_standby." | ".$logbox_ip;
       
-//IF entrey has no STOP timestamp set it
-      $sqlquery="SELECT `id`,`logbox_mac`,`project_id`,`user_id`,`stop` FROM `entries` WHERE `logbox_mac`='$logbox_mac' AND `project_id`=$project_id AND `user_id`=$user_id AND stop IS NULL";
+//IF entry has no STOP timestamp set it, bevore open new one
+      //$sqlquery="SELECT `id`,`logbox_mac`,`project_id`,`user_id`,`stop` FROM `entries` WHERE `logbox_mac`='$logbox_mac' AND `project_id`=$project_id AND `user_id`=$user_id AND stop IS NULL";
+      $sqlquery="SELECT `id`,`logbox_mac`,`project_id`,`user_id`,`stop` FROM `entries` WHERE `logbox_mac`='$logbox_mac' AND `user_id`=$user_id AND stop IS NULL";
       $stmt = $this->db->query($sqlquery); 
       while($row = $stmt->fetch()) { 
         $updatestmt = $this->db->query("UPDATE `entries` set `stop` = NOW() WHERE `id`=".$row['id']);
