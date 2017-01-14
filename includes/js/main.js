@@ -20,6 +20,7 @@ function Main() {
 	this.setupProjectsPage = function(){
 		self.checkLoggedIn();
 		$('.footer button.standBy').click(this.standBy);
+		$('#logout').click(self.logout);
 		
 		self.loadProjects();
 	};
@@ -27,6 +28,8 @@ function Main() {
 	/* sets up everything for the statistics page */
 	this.setupStatisticsPage = function(){
 		self.checkLoggedIn();
+		
+		$('#logout').click(self.logout);
 		
 		//initialize filter datepickers
 		self.setDatepickerDate();
