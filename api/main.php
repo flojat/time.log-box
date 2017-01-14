@@ -32,8 +32,21 @@ $app->add(new \Slim\Middleware\JwtAuthentication([
 ]));
 
 
+$app->get('/test', function (Request $request, Response $response) {
+
+    $tokenw = (array)$request->getAttribute('jwt');
+    
+    //$jsonData = JWT::decode($tokenw, "devsecret", ['HS256', 'HS384']); 
+    $jsonData = " user_id=".$tokenw['user_id'];
+    $jsonData .= " logbox_mac=".$tokenw['logbox_mac'];
+             
+    $response->getBody()->write($jsonData);   
+    
+    return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
+});
+
+
 $app->post('/login', function (Request $request, Response $response) {
-   
 
       $jsonData="";
       
@@ -49,18 +62,13 @@ $app->post('/login', function (Request $request, Response $response) {
       $stmt = $this->db->query($sqlquery); 
       
       if($row = $stmt->fetch()) { 
-        
+       
         $user_id = $row['id'];
         $user_email = $row['email'];
         $user_name = $row['name'];
         $user_firstname = $row['firstname'];
-
-        //$jsonData.= $user_id." | ".$user_email." | ".$user_name." | ".$user_firstname;
-
-
-         
+ 
 // prepare vars and generate jwt
-
         $now = new DateTime();
         $future = new DateTime("now +2 hours");
         $jti = substr(str_shuffle(str_repeat(implode('', array_merge(range('A','Z'),range('a','z'),range(0,9)) ),2)), 0, 16);
@@ -80,40 +88,19 @@ $app->post('/login', function (Request $request, Response $response) {
         $token = JWT::encode($payload, $secret, "HS256");
         $data["status"] = "ok";
         $data["token"] = $token;
-        //$data["payload"]=$payload;
-        //$container = $this->getContainer(); 
-        //$container['token'] =  $token;  
-        
-
-
-// get payload from token to check if token works   
+        // get payload from token to check if token works   
         $data["payload"] = JWT::decode($token, $secret, ['HS256', 'HS384']);
-    
-    
     }
-    $jsonData .= $request->getAttribute('jwt');
-
-
-    //$response->getBody()->write($jsonData);
     
     return $response->withStatus(201)
     ->withHeader("Content-Type", "application/json; charset=utf-8")
-    ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT))->write($jsonData);
-          
-    //$jsonData .= json_encode($row);  
-    //$response->getBody()->write($jsonData);   
-
+    ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
 
 
 $app->get('/stats/week', function (Request $request, Response $response) {
 
-    /* Check if token has needed scope. */
-//    if (false === $this->token->hasScope(["todo.all", "todo.list"])) {
-//        throw new ForbiddenException("Token not allowed to list todos.", 403);
-//    }
-    
 /*OPTIONAL;
     of_category_id Array of int(11)
     project_id int(11)
@@ -123,33 +110,13 @@ $app->get('/stats/week', function (Request $request, Response $response) {
     user_id int(11) (just if admin!)"	"get List of all Entries of that user within actual Week(7days)
     is used to show worked time this week"
 */
-
-    
-    
     $jsonData="";
-    
-    $jsonData .= $request->getAttribute('jwt');
-    
-    
-    //$bodyData = $request->getContents();
-    if(false){
-        $jsonData .= "[";
-        //$bodyData = $this->getContainer();
-        
-        foreach ($bodyData as $dataid => $datacontent) {
-                $jsonData .= $dataid.",";
-        }
-        $jsonData .= "]";
-    
-    }
-    
-    
-    
     
     $dayOfWeek =  array('Mon','Tue','Wed','Thu','Fri','Sat','Sun');
     $projectsWithProgress =  array(9,10,11);
     $user_id=3;
     
+    //FIXME Insert dbquery to build this Array!
     //$arrayDataTable =  array('WEEKDAY','Mon','Tue','Wed','Thu','Fri','Sat','Sun');
     $projectsWithProgress  = [
     '9' => ["Proj 1"],
@@ -157,29 +124,12 @@ $app->get('/stats/week', function (Request $request, Response $response) {
     '11' => ["Proj 3"],
     ];
     
-    $jsonData .='["WEEKDAY"';
+    $jsonData .='[["WEEKDAY"';
     foreach ($projectsWithProgress as &$proj) {
       $jsonData .= ',"'.$proj[0].'"';
     }
     $jsonData .= ']';
     
-/*    
-  [
-      ['WEEKDAY', 'Log-Box, Universal Link',
-          'Redesign Web, Swisscom AG',
-          'Mobile App, Kuster AG',
-          'Req. Analyse, FHNW',
-          'Int. Buchhaltung',
-          'Int. Diversa'],
-      ['Mo.', 2, 1, 3, 1, 0, 0],
-      ['Di.', 3, 0.5, 1, 1, 0, 0],
-      ['Mi.', 0.5, 4, 6, 0, 0, 0],
-      ['Do.', 1, 0.25, 1, 2, 0, 0],
-      ['Fr.', 0.5, 1, 2, 1, 0, 1],
-      ['Sa.', 0, 0, 0, 0, 3, 0.5,]
-  ]
-*/    
-
     foreach ($dayOfWeek as &$day) {
         $jsonData.= ',["'.$day.'"'; 
         foreach ($projectsWithProgress as $projId => $projName) {
@@ -192,15 +142,7 @@ $app->get('/stats/week', function (Request $request, Response $response) {
         }
         $jsonData.= "]"; 
     }
-    
-    //$jsonData .= json_encode($arrayDataTable); 
-
-    //$stmt = $this->db->query($sqlquery); 
-    //while($row = $stmt->fetch()) {
-    //  $jsonData .= json_encode($row).",";    
-    //}
-    //FIXME: replace that String hack with a solkution that generates a clean and secure JSON
-    //$jsonData = substr_replace($jsonData, "]", strrpos ( $jsonData , ",")); 
+    $jsonData.= "]"; 
           
     $response->getBody()->write($jsonData);   
     return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
@@ -260,7 +202,8 @@ $app->get('/openentry', function (Request $request, Response $response) {
         $jsonData .= json_encode($row).",";    
       }
 	  
-	  $jsonData = substr_replace($jsonData, "]", strrpos ( $jsonData , ",")); 
+	  //$jsonData = substr_replace($jsonData, "", strrpos ( $jsonData , ",")); 
+	  $jsonData .= "]";
       
     $response->getBody()->write($jsonData);   
     return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
