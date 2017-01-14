@@ -148,8 +148,6 @@ $app->get('/stats/week', function (Request $request, Response $response) {
     return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
 });
 
-
-
   
 
 $app->get('/projects', function (Request $request, Response $response) {
@@ -176,7 +174,6 @@ $app->get('/projects', function (Request $request, Response $response) {
     $response->getBody()->write($jsonData);   
     return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
 });
-
 
 
 
