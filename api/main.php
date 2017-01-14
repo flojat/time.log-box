@@ -4,6 +4,9 @@ use \Psr\Http\Message\ResponseInterface as Response;
 require 'vendor/autoload.php';
 include_once 'config/config.inc.php';
 
+use Firebase\JWT\JWT;
+use Tuupola\Base62;
+
 $app = new \Slim\App(["settings" => $config]);
 
 
@@ -16,14 +19,100 @@ $container['db'] = function ($c) {
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     return $pdo;
 }; 
-/*
+
+
 $app->add(new \Slim\Middleware\JwtAuthentication([
-    "secret" => "devsecret"
-  //"secret" => getenv("JWT_SECRET")
+    "path" => ["/"],
+    "passthrough" => ["/stats/week","/projects","/openentry","/project/entry", "/login"],
+    //"secret" => getenv("JWT_SECRET"),
+    "secret" => "devsecret",
+    "attribute" => "jwt",
+    "algorithm" => ["HS256", "HS384"]
+    
 ]));
-*/
+
+
+$app->post('/login', function (Request $request, Response $response) {
+   
+
+      $jsonData="";
+      
+      $bodyData = $request->getParsedBody();
+      $user = filter_var($bodyData['user'], FILTER_SANITIZE_STRING);
+      $password = filter_var($bodyData['password'], FILTER_SANITIZE_STRING);
+      $pwd = sha1 ($password);
+
+      $sqlquery=" SELECT id, email, name, firstname
+                  FROM user
+                  WHERE user.email =   '{$user}'
+                  AND user.password =   '{$pwd}' ";
+      $stmt = $this->db->query($sqlquery); 
+      
+      if($row = $stmt->fetch()) { 
+        
+        $user_id = $row['id'];
+        $user_email = $row['email'];
+        $user_name = $row['name'];
+        $user_firstname = $row['firstname'];
+
+        //$jsonData.= $user_id." | ".$user_email." | ".$user_name." | ".$user_firstname;
+
+
+         
+// prepare vars and generate jwt
+
+        $now = new DateTime();
+        $future = new DateTime("now +2 hours");
+        $jti = substr(str_shuffle(str_repeat(implode('', array_merge(range('A','Z'),range('a','z'),range(0,9)) ),2)), 0, 16);
+        //PHP7 coud be so easy ;-) //random_bytes(16) and encode in base 64 or base 62;
+        
+        $payload = [
+            "iat" => $now->getTimeStamp(),
+            "exp" => $future->getTimeStamp(),
+            "jti" => $jti,
+            "sub" => $user_firstname,
+            "user_id" => $user_id,
+            "logbox_mac" =>  "mobile-client",
+            
+        ];
+        //$secret = getenv("JWT_SECRET");
+        $secret = "devsecret";
+        $token = JWT::encode($payload, $secret, "HS256");
+        $data["status"] = "ok";
+        $data["token"] = $token;
+        //$data["payload"]=$payload;
+        //$container = $this->getContainer(); 
+        //$container['token'] =  $token;  
+        
+
+
+// get payload from token to check if token works   
+        $data["payload"] = JWT::decode($token, $secret, ['HS256', 'HS384']);
+    
+    
+    }
+    $jsonData .= $request->getAttribute('jwt');
+
+
+    //$response->getBody()->write($jsonData);
+    
+    return $response->withStatus(201)
+    ->withHeader("Content-Type", "application/json; charset=utf-8")
+    ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT))->write($jsonData);
+          
+    //$jsonData .= json_encode($row);  
+    //$response->getBody()->write($jsonData);   
+
+});
+
+
 
 $app->get('/stats/week', function (Request $request, Response $response) {
+
+    /* Check if token has needed scope. */
+//    if (false === $this->token->hasScope(["todo.all", "todo.list"])) {
+//        throw new ForbiddenException("Token not allowed to list todos.", 403);
+//    }
     
 /*OPTIONAL;
     of_category_id Array of int(11)
@@ -39,6 +128,24 @@ $app->get('/stats/week', function (Request $request, Response $response) {
     
     $jsonData="";
     
+    $jsonData .= $request->getAttribute('jwt');
+    
+    
+    //$bodyData = $request->getContents();
+    if(false){
+        $jsonData .= "[";
+        //$bodyData = $this->getContainer();
+        
+        foreach ($bodyData as $dataid => $datacontent) {
+                $jsonData .= $dataid.",";
+        }
+        $jsonData .= "]";
+    
+    }
+    
+    
+    
+    
     $dayOfWeek =  array('Mon','Tue','Wed','Thu','Fri','Sat','Sun');
     $projectsWithProgress =  array(9,10,11);
     $user_id=3;
@@ -50,11 +157,11 @@ $app->get('/stats/week', function (Request $request, Response $response) {
     '11' => ["Proj 3"],
     ];
     
-    $jsonData .="['WEEKDAY'";
+    $jsonData .='["WEEKDAY"';
     foreach ($projectsWithProgress as &$proj) {
-      $jsonData .= ",'".$proj[0]."'";
+      $jsonData .= ',"'.$proj[0].'"';
     }
-    $jsonData .= "]";
+    $jsonData .= ']';
     
 /*    
   [
@@ -74,7 +181,7 @@ $app->get('/stats/week', function (Request $request, Response $response) {
 */    
 
     foreach ($dayOfWeek as &$day) {
-        $jsonData.= ",['$day'"; 
+        $jsonData.= ',["'.$day.'"'; 
         foreach ($projectsWithProgress as $projId => $projName) {
             $sqlquery="SELECT sum(round((TIME_TO_SEC(TIMEDIFF(`stop`,`start`))/60/60),2)) h from entries e WHERE `user_id`=$user_id AND DATE_FORMAT(`start`,'%a')='$day' AND e.project_id=".$projId;
             $stmt = $this->db->query($sqlquery);    
