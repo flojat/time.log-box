@@ -16,7 +16,12 @@ $container['db'] = function ($c) {
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     return $pdo;
 }; 
-
+/*
+$app->add(new \Slim\Middleware\JwtAuthentication([
+    "secret" => "devsecret"
+  //"secret" => getenv("JWT_SECRET")
+]));
+*/
 
 $app->get('/stats/week', function (Request $request, Response $response) {
     

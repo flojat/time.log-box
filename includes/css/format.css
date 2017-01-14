@@ -1,223 +1,521 @@
 /* Navigation & Footer*/
+
 nav{
+
     background-color: #333333;
+
 }
+
 /* about-Button*/
+
 a {
+
     text-decoration: none;
+
     color: #666;
+
 }
+
+
 
 a:hover {
+
     color: #aeaeae;
+
 }
+
+
 
 .title{
+
     text-align: center;
+
 }
+
 ul {
+
     list-style-type: none;
+
     margin: 0;
+
     padding: 0;
+
     overflow: hidden;
+
 }
+
+
 
 li {
+
     float: left;
+
 }
+
+
 
 li a {
+
     display: block;
+
     color: white;
+
     text-align: center;
+
     padding: 14px 16px;
+
     text-decoration: none;
+
     font-size: 12px;
+
     font-family: 'Helvetica', sans-serif;
+
 }
+
+
 
 li a:hover:not(.active) {
+
     background-color: #111;
+
 }
 
+
+
 .active {
+
     background-color: #14617f;
+
 }
+
+
 
 /* Body - Layout*/
 
+
+
 body {
+
     background: url("https://log-box.ch/webec/includes/images/timeClock.jpg") no-repeat center fixed;
+
     background-size: cover;
+
     font-family: 'Helvetica', sans-serif;
+
     margin: 0;
+
     color: white;
+
 }
+
+
 
 /* Layout  Listen-Box*/
+
 .container {
+
     margin: 0;
+
 }
+
 .container a:hover:not(.active){
+
     background-color: #14617f;
+
     margin: 0;
+
 }
+
+
 
 #gridlist{
+
     width: 340px;
+
     margin: 0px auto;
+
     padding-left: 0px;
+
     border-radius: 10px;
+
     background-color: #14617F;
+
     opacity: 0.94;
+
 }
+
 .project-box {
+
     max-width: 340px;
+
     margin: 0 auto;
+
     position: relative;
+
     border-radius: 5px;
+
     font-family: 'Ubuntu', sans-serif;
+
     font-size: small;
 
+
+
 }
+
+
 
 .logo-column{
+
     margin: 8px 3px;
+
     width: 20px;
+
     float:left;
 
+
+
 }
+
+
 
 .left-column{
+
     margin: 5px 3px;
+
     width: 200px;
-    float:left;
-    padding: 1px;
-}
-.right-column{
-    width: 50px;
+
     float:left;
 
+    padding: 1px;
+
 }
+
+.right-column{
+
+    width: 50px;
+
+    float:left;
+
+
+
+}
+
 .tel{
+
     text-align: left;
+
     padding-left: 0px;
+
     margin-left: 0px;
+
 }
+
+
 
 .list{
+
     margin-left: 8px;
+
 }
 
+
+
 /* Images - Layout*/
+
 .pic{
+
     width: 20px;
+
     height: 20px;
+
     margin: 1px;
+
 }
+
 /* Button - Layout*/
+
 .list button {
+
     margin: 4px;
+
     border: 0;
+
     width: 70px;
+
     height: 30px;
+
     border-radius: 10px;
+
     color: white;
+
     text-transform: uppercase;
+
     font-weight: 400;
+
     font-size: 0.7em;
+
     letter-spacing: 1px;
+
     cursor:pointer;
+
     outline: none;
+
 }
+
 .lockTime {
+
     background-color: #077f0d;
+
 }
+
 .standBy {
+
     background-color: #65686a;
+
 }
+
+
+
+
 
 
 
 .list button:hover{
+
     opacity: 0.7;
+
     transition: 0.5s;
+
 }
+
+
 
 .footer {
+
     position: fixed;
+
     right: 0;
+
     bottom: 0;
+
     left: 0;
+
     background-color: #333333;
+
     text-align: center;
+
 }
+
+
 
 select  {
+
     display:inline-block;
+
     width: 180px;
+
     padding: 1px 1px;
+
     margin: 10px;
+
     border: none;
+
     border-radius: 3px;
+
     background-color: #f1f1f1;
+
 }
+
+
 
 label {
+
     display:inline-block;
+
     width: 30px;
+
     padding: 1px 1px;
+
     margin: 10px;
+
     border: none;
+
     border-radius: 3px;
 
+
+
 }
+
 input {
+
     display:inline-block;
+
     width: 70px;
+
     padding: 2px 2px;
+
     margin: 10px;
+
     border: none;
+
     border-radius: 3px;
+
     background-color: #f1f1f1;
+
 }
+
 .stats{
+
     position:relative;
+
 }
+
 #columnchart_values{
+
     width: 340px;
+
     margin: 0px auto;
+
     padding-left: 0px;
+
     border-radius: 10px;
+
     background-color: #14617F;
+
     opacity: 0.94;
+
 }
+
+
 
 #reset{
+
     background-color: #8b211e;
+
     padding: 4px;
+
     border: none;
+
     border-radius: 7px;
+
     color:white;
+
 }
+
 #send{
+
     background-color: #0e8b2c;
+
     padding: 4px;
+
     border: none;
+
     border-radius: 7px;
+
     color:white;
+
 }
+
 .filter {
+
     width: 340px;
+
     margin: 10px auto;
+
     padding-left: 0px;
+
     border-radius: 10px;
+
     background-color: #14617F;
+
     opacity: 0.94;
+
 }
+
 h3{
+
     padding: 10px;
+
     margin-top:5px;
+
 }
+
+
+
+/* 
+*  login Form
+*/
+
+.login-box {
+	background-color: white;
+	max-width: 340px;
+	margin: 0 auto;
+	position: relative;
+	//top: 80px;
+	padding-bottom: 30px;
+	border-radius: 5px;
+	box-shadow: 0 5px 50px rgba(0,0,0,0.4);
+	text-align: center;
+}
+
+.login-box .box-header {
+	background-color: #14617f;
+	margin-top: 0;
+	border-radius: 5px 5px 0 0;
+}
+
+.login-box label {
+	font-weight: 700;
+	font-size: .8em;
+	color: #888;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	line-height: 2em;
+}
+
+.login-box input {
+	margin-bottom: 20px;
+	padding: 8px;
+	border: 1px solid #ccc;
+	border-radius: 2px;
+	font-size: .9em;
+	color: #888;
+}
+
+.login-box input:focus {
+	outline: none;
+	border-color: #14617f;
+	transition: 0.5s;
+	color: #14617f;
+}
+
+.login-box button {
+	margin-top: 0px;
+	border: 0;
+	border-radius: 2px;
+	color: white;
+	padding: 10px;
+	text-transform: uppercase;
+	font-weight: 400;
+	font-size: 0.7em;
+	letter-spacing: 1px;
+	background-color: #14617f;
+	cursor:pointer;
+	outline: none;
+}
+
+.login-box button:hover {
+	opacity: 0.7;
+	transition: 0.5s;
+}
+
+
+.selected {
+	color: #14617f !important;
+	transition: 0.5s;
+}
+
+
+
 
 

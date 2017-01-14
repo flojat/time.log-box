@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+      <meta charset="utf-8">
+
+      <meta http-equiv="X-UA-COMPATIBLE" content="IE=edge">
+
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+
+      <title>time.log-box.ch - main</title>
+
+      <!-- Link = Login Stylesheet -->
+
+      <link rel="stylesheet" href="includes/css/format.css">
+
+      <!-- Link = jQuery library -->
+
+      <script src="includes/js/jquery-3.1.1.js"></script>
+	  
+	  <!-- Link = jsRender library -->
+
+      <script src="includes/js/jsrender.js"></script>
+	  
+	  <!-- Link api client -->
+	  <script src="includes/js/api.js"></script>
+	  
+	  <!-- Link api client -->
+	  <script src="includes/js/main.js"></script>
+
+      <link rel="stylesheet" href="includes/css/font-awesome/css/font-awesome.min.css">
+</head>
+
+<body>
+<header>
+    <nav>
+        <ul id="navigation" >
+                <li><a class="list-group-item" href="main.html"><i class="fa fa-unlock" aria-hidden="true"></i>
+                    &nbsp; Projekte</a></li>
+                <li><a class="list-group-item" href="#"><i class="fa fa-envelope fa-fw" aria-hidden="true"></i>&nbsp; &copy; time.log-box</a></li>
+                <li style="float:right"><a class="active" href="#"><i class="fa fa-info" aria-hidden="true"></i>&nbsp; About</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section class="container">
+    <div class="top">
+        <h1 id="title" class="title"><span id="logo"><span>time.log</span></span></h1>
+    </div>
+    <div class="login-box">
+        <div class="box-header">
+            <h2 align="center">Log In</h2>
+        </div>
+        <label for="username">Username</label>
+
+        <br/>
+        <input type="text" id="username">
+        <br/>
+        <label for="password">Password</label>
+        <br/>
+        <input type="password" id="password">
+        <br/>
+        <label for="deviceID">Device ID</label>
+        <br/>
+        <input type="text" id="deviceID">
+        <br/>
+        <button type="submit">Sign In</button>
+        <br/>
+        <a href="#"><p class="small">Forgot your password?</p></a>
+    </div>
+</section>
+
+<div class="footer">
+            <a href="#" target="_blank">&copy; time.log - box </a>
+</div>
+
+</body>
+
+<script>
+    // little animation for the Input Fields .-)
+    $(document).ready(function () {
+        $("input:text:visible:first").focus();
+    });
+    $('#username').hover(function () {
+        $('label[for="username"]').addClass('selected');
+    }, function() {
+        $('label[for="username"]').removeClass('selected');
+    });
+
+    $('#password').hover(function () {
+        $('label[for="password"]').addClass('selected');
+    },function () {
+        $('label[for="password"]').removeClass('selected');
+    });
+
+    $('#deviceID').hover(function () {
+        $('label[for="deviceID"]').addClass('selected');
+    },function () {
+        $('label[for="deviceID"]').removeClass('selected');
+    });
+</script>
+
+</html>
