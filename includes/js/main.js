@@ -43,6 +43,7 @@ function Main() {
 		google.charts.setOnLoadCallback(self.drawChart);
 	};
 	
+	/* gets data and draws the chart on the statistics pages */
 	this.drawChart = function() {
 		var from = new Date($("#datepickerFrom").val());
 		var to = new Date($("#datepickerTo").val());
@@ -134,6 +135,13 @@ function Main() {
 			//reload project list
 			self.loadProjects();
 		});
+	};
+	
+	/* logs out the user (removes jwt) */
+	this.logout = function(){
+		localStorage.removeItem("jwt");
+		
+		window.location.replace("login.html");
 	};
 	
 	/* Stops all tracking 
