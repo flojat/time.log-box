@@ -117,7 +117,7 @@ function Main() {
 	this.projectButtonClick = function(e){
 		projectid = $(e.target.closest('li')).attr('project-id');
 		
-		self.apiClient.postStartEntry(projectid, 0, function(){
+		self.apiClient.postEntry(projectid, 0, function(){
 			//reload project list
 			self.loadProjects();
 		});
