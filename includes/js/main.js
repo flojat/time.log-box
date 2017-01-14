@@ -7,7 +7,18 @@ function Main() {
 	this.openEntries = [];
 	
 	/* sets up everything for the Projects page */
-	this.setupProjectsPage = function(){	
+	this.setupLoginPage = function(){
+		$("#login").click(function(){
+			var user = $("#username").val();
+			var password = $("#password").val();
+			
+			self.apiClient.login(user, password, function(){window.location.replace("main.html");});
+		});
+	};
+	
+	/* sets up everything for the Projects page */
+	this.setupProjectsPage = function(){
+		self.checkLoggedIn();
 		$('.footer button.standBy').click(this.standBy);
 		
 		self.loadProjects();
@@ -15,6 +26,8 @@ function Main() {
 	
 	/* sets up everything for the statistics page */
 	this.setupStatisticsPage = function(){
+		self.checkLoggedIn();
+		
 		//initialize filter datepickers
 		self.setDatepickerDate();
 		
@@ -96,8 +109,8 @@ function Main() {
 					clientprojectownername: val.client_project_owner_name,
 					clientphone: val.client_project_owner_tel,
 					active: activeEntry.length > 0,
-					time: activeEntry.length > 0 ? self.getTimeDifference(new Date().getTime(), Date.parse(activeEntry[0].start)) : "" ,
-					starttime: activeEntry.length > 0 ? activeEntry[0].start : ""
+					time: activeEntry.length > 0 ? self.getTimeDifference(new Date().getTime(), Date.parse(activeEntry[0].start.split(" ").join("T"))) : "" ,
+					starttime: activeEntry.length > 0 ? activeEntry[0].start.split(" ").join("T") : ""
 				};
 				
 				return result;
@@ -115,7 +128,7 @@ function Main() {
 		e = the clicked button supplied by jQuery
 	*/
 	this.projectButtonClick = function(e){
-		projectid = $(e.target.closest('li')).attr('project-id');
+		projectid = $($(e.target).closest('li')).attr('project-id');
 		
 		self.apiClient.postEntry(projectid, 0, function(){
 			//reload project list
@@ -139,6 +152,15 @@ function Main() {
 		}
 	};
 	
+	/* checks if the user has a jwt token and redirects to login page if not */
+	this.checkLoggedIn = function(){
+		if(localStorage.getItem("jwt") === null)
+		{
+			//user is not logged in, redirect
+			window.location.replace("login.html");
+		}
+	};
+	
 	/* updates the times for active projects */
 	this.updateTimes = function(){
 		//update each active button's time
@@ -158,8 +180,8 @@ function Main() {
 	*/
 	this.getTimeDifference = function(date1, date2){
 		difference = (date1 - date2)/1000;
-		hours = Math.floor(difference / 3600);
-		minutes = Math.floor((difference % 3600)/60);
+		hours = Math.max(Math.floor(difference / 3600), 0);
+		minutes = Math.max(Math.floor((difference % 3600)/60), 0);
 		
 		return hours + ":" + this.pad(minutes, 2);
 	};
