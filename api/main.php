@@ -103,13 +103,26 @@ $app->get('/stats', function (Request $request, Response $response) {
 
 /*OPTIONAL;
 
-*/
+*/  
+
+    
     $jsonData="";
     $getParams = $request->getQueryParams();
       
     //FIXME: take values from JWT-Token
-    $beginn_date = $getParams['beginn_date'];
+    $start_date = $getParams['start_date'];
     $end_date =  $getParams['end_date'];
+    
+    if($end_date !=""){
+    $end_date = str_replace ( ".000Z" , "" , $end_date) ;
+    $end_date = str_replace ( "T" , " " , $end_date);
+    }
+    if($start_date !=""){
+    $start_date = str_replace ( ".000Z" , "" , $start_date) ;
+    $start_date = str_replace ( "T" , " " , $start_date);
+    }
+    
+    logall("start_date=".$start_date." end_date=".$end_date, true);
     
     $dayOfWeek =  array('Mon','Tue','Wed','Thu','Fri','Sat','Sun');
     $user_id=3;
@@ -131,7 +144,8 @@ $app->get('/stats', function (Request $request, Response $response) {
     foreach ($dayOfWeek as &$day) {
         $jsonData.= ',["'.$day.'"'; 
         foreach ($projectsWithProgress as $projId => $projName) {
-            $sqlquery="SELECT sum(round((TIME_TO_SEC(TIMEDIFF(`stop`,`start`))/60/60),2)) h from entries e WHERE `user_id`=$user_id AND DATE_FORMAT(`start`,'%a')='$day' AND e.project_id=".$projId." AND `start` > '".$beginn_date."' AND `stop` < '".$end_date."' ";
+            $sqlquery="SELECT sum(round((TIME_TO_SEC(TIMEDIFF(`stop`,`start`))/60/60),2)) h from entries e WHERE `user_id`=$user_id AND DATE_FORMAT(`start`,'%a')='$day' AND e.project_id=".$projId." AND `start` >= '".$start_date."' AND `stop` <= ADDDATE('".$end_date."', +1) ";
+            logall($sqlquery);
             $stmt = $this->db->query($sqlquery);    
             while($row = $stmt->fetch()) {
               $jsonData.= ",".floatval (($row['h'] != "") ? $row['h'] : 0 ); 
@@ -314,6 +328,37 @@ $app->post('/project/entry', function (Request $request, Response $response) {
     $response->getBody()->write($jsonData);   
     return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
 });
+
+
+function logall($valuesToSave, $logPost = false){
+
+  $valuesToSave = date("Y-m-j H:i:s").", ".$valuesToSave.", ";
+  $logFileName = "main.php.log";
+
+  if($logPost){
+      foreach($_POST as $key => $value){
+            $valuesToSave .= ",$value($key)";
+      }
+      
+      foreach($_GET as $key => $value){
+            $valuesToSave .= ",$value($key)";
+      }
+  }
+  
+  $valuesToSave .= ",{$_SERVER['REMOTE_ADDR']}";
+//log request with filename
+  if ($logFileName != ""){
+    if(!($datei = fopen("logs/".$logFileName,"a"))){
+      //echo("geht nicht");
+    }else{
+     fwrite($datei,"$valuesToSave\n");
+     fclose($datei);
+    }
+  }
+
+}
+
+
 
 
 $app->run();
