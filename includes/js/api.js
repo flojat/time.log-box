@@ -28,6 +28,7 @@ function ApiClient(){
 	this.getOpenEntry = function(callback){
 		$.ajax({
 			url: this.apiUrl + this.openEntryEndpoint,
+			cache: false,
 			beforeSend : function(xhr) {xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem('jwt'));}
 		}).done(function(data) {
 		   callback(data);
@@ -39,14 +40,15 @@ function ApiClient(){
 	/* Post a new entry for a project to the server 
 		projectid = the id of the project
 		standby = 1 -> don't create a new entry, just close any existing one, 0 -> create a new entry
+		message = message to add to a stop entry, if any
 	*/
-	this.postEntry = function(projectid, standby, callback) {
+	this.postEntry = function(projectid, standby, message, callback) {
 		$.ajax({
 			url: this.apiUrl + this.projectEndpoint + "/entry",
 			method: "POST",
 			contentType: "application/json",
 			dataType: "json",
-			data: JSON.stringify({project_id: projectid, go_to_standby: standby}),
+			data: JSON.stringify({project_id: projectid, go_to_standby: standby, message: message}),
 			beforeSend : function(xhr) {xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem('jwt'));}
 		}).done(function(data) {
 		   callback(data);
@@ -59,6 +61,7 @@ function ApiClient(){
 	this.getStats = function(params, callback){
 		$.ajax({
 			url: this.apiUrl + this.statsEndpoint,
+			cache: false,
 			data: params,
 			beforeSend : function(xhr) {xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem('jwt'));}
 		}).done(function(data) {
@@ -72,6 +75,7 @@ function ApiClient(){
 	this.login = function(user, password, callback){
 		$.ajax({
 			url: this.apiUrl + this.loginEndpoint,
+			cache: false,
 			method: "POST",
 			contentType: "application/json",
 			dataType: "json",

@@ -545,7 +545,14 @@ h2 {
 	transition: 0.5s;
 }
 
+#work-message-dialog {
+	display:none;
+}
 
+#work-message-dialog label{
+	width:50px;
+}
 
-
-
+#work-message-dialog input#comment{
+	width:160px;
+}
