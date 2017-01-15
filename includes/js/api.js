@@ -58,7 +58,7 @@ function ApiClient(){
 	/* gets time stats for the current user */
 	this.getStats = function(params, callback){
 		$.ajax({
-			url: this.apiUrl + this.statsEndpoint + "/week",
+			url: this.apiUrl + this.statsEndpoint,
 			data: params,
 			beforeSend : function(xhr) {xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem('jwt'));}
 		}).done(function(data) {
