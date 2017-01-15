@@ -23,7 +23,7 @@ $container['db'] = function ($c) {
 
 $app->add(new \Slim\Middleware\JwtAuthentication([
     "path" => ["/"],
-    "passthrough" => ["/stats/week","/projects","/openentry","/project/entry", "/login"],
+    "passthrough" => ["/stats/week","/projects","/openentry","/project/entry", "/stats", "/login"],
     //"secret" => getenv("JWT_SECRET"),
     "secret" => "devsecret",
     "attribute" => "jwt",
@@ -98,6 +98,53 @@ $app->post('/login', function (Request $request, Response $response) {
 });
 
 
+
+$app->get('/stats', function (Request $request, Response $response) {
+
+/*OPTIONAL;
+
+*/
+    $jsonData="";
+    $getParams = $request->getQueryParams();
+      
+    //FIXME: take values from JWT-Token
+    $beginn_date = $getParams['beginn_date'];
+    $end_date =  $getParams['end_date'];
+    
+    $dayOfWeek =  array('Mon','Tue','Wed','Thu','Fri','Sat','Sun');
+    $user_id=3;
+    
+    //FIXME Insert dbquery to build this Array!
+    //$arrayDataTable =  array('WEEKDAY','Mon','Tue','Wed','Thu','Fri','Sat','Sun');
+    $projectsWithProgress  = [
+    '9' => ["Proj 1"],
+    '10' => ["Proj 2"],
+    '11' => ["Proj 3"],
+    ];
+    
+    $jsonData .='[["WEEKDAY"';
+    foreach ($projectsWithProgress as &$proj) {
+      $jsonData .= ',"'.$proj[0].'"';
+    }
+    $jsonData .= ']';
+    
+    foreach ($dayOfWeek as &$day) {
+        $jsonData.= ',["'.$day.'"'; 
+        foreach ($projectsWithProgress as $projId => $projName) {
+            $sqlquery="SELECT sum(round((TIME_TO_SEC(TIMEDIFF(`stop`,`start`))/60/60),2)) h from entries e WHERE `user_id`=$user_id AND DATE_FORMAT(`start`,'%a')='$day' AND e.project_id=".$projId." AND `start` > '".$beginn_date."' AND `stop` < '".$end_date."' ";
+            $stmt = $this->db->query($sqlquery);    
+            while($row = $stmt->fetch()) {
+              $jsonData.= ",".floatval (($row['h'] != "") ? $row['h'] : 0 ); 
+            }
+            $stmt = null;
+        }
+        $jsonData.= "]"; 
+    }
+    $jsonData.= "]"; 
+          
+    $response->getBody()->write($jsonData);   
+    return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
+});
 
 $app->get('/stats/week', function (Request $request, Response $response) {
 
@@ -192,18 +239,16 @@ $app->get('/openentry', function (Request $request, Response $response) {
 
       $sqlquery="SELECT `project_id`,`start` FROM `entries` WHERE `logbox_mac`='$logbox_mac' AND `user_id`=$user_id AND stop IS NULL";
       $stmt = $this->db->query($sqlquery); 
-	  
-	  $jsonData="[";
-	  
-      while($row = $stmt->fetch()) {
-        $jsonData .= json_encode($row).",";    
+  	  $jsonData="[";
+  	  if($stmt->rowCount() >0){
+          while($row = $stmt->fetch()) {
+              $jsonData .= json_encode($row).",";    
+          }
+          $jsonData = substr ( $jsonData , 0, (strlen ($jsonData)-1) );
       }
-	  
-	  //$jsonData = substr_replace($jsonData, "", strrpos ( $jsonData , ",")); 
-	  $jsonData .= "]";
-      
-    $response->getBody()->write($jsonData);   
-    return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
+  	  $jsonData .= "]";  
+      $response->getBody()->write($jsonData);   
+      return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
 });
 
 
