@@ -196,27 +196,34 @@ body {
 
     float:left;
 
-
-
 }
+
+
 
 .tel{
-
+    margin-left: 0;
+    
+    padding: 1em 0 0.5em;
+    
     text-align: left;
-
-    padding-left: 0px;
-
-    margin-left: 0px;
-
+    
 }
-
-
 
 .list{
 
-    margin-left: 8px;
+    margin: 1em 0 0 1em;
 
 }
+
+.footer .list{
+
+    margin: 0.2em 0;
+
+}
+.footer .list button{
+    background-color: #8b211e;
+}
+
 
 
 

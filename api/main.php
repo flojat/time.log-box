@@ -5,10 +5,9 @@ require 'vendor/autoload.php';
 include_once 'config/config.inc.php';
 
 use Firebase\JWT\JWT;
-use Tuupola\Base62;
+
 
 $app = new \Slim\App(["settings" => $config]);
-
 
 $container = $app->getContainer();   
 $container['db'] = function ($c) {
@@ -23,7 +22,7 @@ $container['db'] = function ($c) {
 
 $app->add(new \Slim\Middleware\JwtAuthentication([
     "path" => ["/"],
-    "passthrough" => ["/stats/week","/projects","/openentry","/project/entry", "/stats", "/login"],
+    "passthrough" => ["/login"],
     //"secret" => getenv("JWT_SECRET"),
     "secret" => "devsecret",
     "attribute" => "jwt",
@@ -32,24 +31,8 @@ $app->add(new \Slim\Middleware\JwtAuthentication([
 ]));
 
 
-$app->get('/test', function (Request $request, Response $response) {
-
-    $tokenw = (array)$request->getAttribute('jwt');
-    
-    //$jsonData = JWT::decode($tokenw, "devsecret", ['HS256', 'HS384']); 
-    $jsonData = " user_id=".$tokenw['user_id'];
-    $jsonData .= " logbox_mac=".$tokenw['logbox_mac'];
-             
-    $response->getBody()->write($jsonData);   
-    
-    return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
-});
-
-
 $app->post('/login', function (Request $request, Response $response) {
 
-      $jsonData="";
-      
       $bodyData = $request->getParsedBody();
       $user = filter_var($bodyData['user'], FILTER_SANITIZE_STRING);
       $password = filter_var($bodyData['password'], FILTER_SANITIZE_STRING);
@@ -88,8 +71,6 @@ $app->post('/login', function (Request $request, Response $response) {
         $token = JWT::encode($payload, $secret, "HS256");
         $data["status"] = "ok";
         $data["token"] = $token;
-        // get payload from token to check if token works   
-        $data["payload"] = JWT::decode($token, $secret, ['HS256', 'HS384']);
     }
     
     return $response->withStatus(201)
@@ -103,16 +84,29 @@ $app->get('/stats', function (Request $request, Response $response) {
 
 /*OPTIONAL;
 
-*/
+*/     
     $jsonData="";
+    $jwt_token = (array)$request->getAttribute('jwt');
     $getParams = $request->getQueryParams();
       
     //FIXME: take values from JWT-Token
-    $beginn_date = $getParams['beginn_date'];
+    $start_date = $getParams['start_date'];
     $end_date =  $getParams['end_date'];
     
+    // not nice but quick 'n dirty to convert ISO_8601(json) to mysql datetime 
+    // https://en.wikipedia.org/wiki/ISO_8601 )
+    if($end_date !=""){
+    $end_date = str_replace ( ".000Z" , "" , $end_date) ;
+    $end_date = str_replace ( "T" , " " , $end_date);
+    }
+    if($start_date !=""){
+    $start_date = str_replace ( ".000Z" , "" , $start_date) ;
+    $start_date = str_replace ( "T" , " " , $start_date);
+    }
+    
+
     $dayOfWeek =  array('Mon','Tue','Wed','Thu','Fri','Sat','Sun');
-    $user_id=3;
+    $user_id=7;
     
     //FIXME Insert dbquery to build this Array!
     //$arrayDataTable =  array('WEEKDAY','Mon','Tue','Wed','Thu','Fri','Sat','Sun');
@@ -131,7 +125,7 @@ $app->get('/stats', function (Request $request, Response $response) {
     foreach ($dayOfWeek as &$day) {
         $jsonData.= ',["'.$day.'"'; 
         foreach ($projectsWithProgress as $projId => $projName) {
-            $sqlquery="SELECT sum(round((TIME_TO_SEC(TIMEDIFF(`stop`,`start`))/60/60),2)) h from entries e WHERE `user_id`=$user_id AND DATE_FORMAT(`start`,'%a')='$day' AND e.project_id=".$projId." AND `start` > '".$beginn_date."' AND `stop` < '".$end_date."' ";
+            $sqlquery="SELECT sum(round((TIME_TO_SEC(TIMEDIFF(`stop`,`start`))/60/60),2)) h from entries e WHERE `user_id`=".$jwt_token['user_id']." AND DATE_FORMAT(`start`,'%a')='$day' AND e.project_id=".$projId." AND `start` >= '".$start_date."' AND `stop` <= ADDDATE('".$end_date."', +1) ";
             $stmt = $this->db->query($sqlquery);    
             while($row = $stmt->fetch()) {
               $jsonData.= ",".floatval (($row['h'] != "") ? $row['h'] : 0 ); 
@@ -157,11 +151,13 @@ $app->get('/stats/week', function (Request $request, Response $response) {
     user_id int(11) (just if admin!)"	"get List of all Entries of that user within actual Week(7days)
     is used to show worked time this week"
 */
+    
+    $jwt_token = (array)$request->getAttribute('jwt');
+    
     $jsonData="";
     
     $dayOfWeek =  array('Mon','Tue','Wed','Thu','Fri','Sat','Sun');
-    $projectsWithProgress =  array(9,10,11);
-    $user_id=3;
+    $user_id=7;
     
     //FIXME Insert dbquery to build this Array!
     //$arrayDataTable =  array('WEEKDAY','Mon','Tue','Wed','Thu','Fri','Sat','Sun');
@@ -180,7 +176,7 @@ $app->get('/stats/week', function (Request $request, Response $response) {
     foreach ($dayOfWeek as &$day) {
         $jsonData.= ',["'.$day.'"'; 
         foreach ($projectsWithProgress as $projId => $projName) {
-            $sqlquery="SELECT sum(round((TIME_TO_SEC(TIMEDIFF(`stop`,`start`))/60/60),2)) h from entries e WHERE `user_id`=$user_id AND DATE_FORMAT(`start`,'%a')='$day' AND e.project_id=".$projId;
+            $sqlquery="SELECT sum(round((TIME_TO_SEC(TIMEDIFF(`stop`,`start`))/60/60),2)) h from entries e WHERE `user_id`=".$jwt_token['user_id']." AND DATE_FORMAT(`start`,'%a')='$day' AND e.project_id=".$projId;
             $stmt = $this->db->query($sqlquery);    
             while($row = $stmt->fetch()) {
               $jsonData.= ",".floatval (($row['h'] != "") ? $row['h'] : 0 ); 
@@ -203,21 +199,28 @@ $app->get('/projects', function (Request $request, Response $response) {
     // project_id(String), project_name(String), client_id(String), 
     // client_logo(img), client_name(String),  client_project_owner_id(String), 
     // client_project_owner_name(String), client_project_owner_tel(String),
-
-    $jsonData="[";
+    
+    $jwt_token = (array)$request->getAttribute('jwt');
+    
     $sqlquery="SELECT p.id project_id, p.name project_name, c.id client_id, 
                       c.logo client_logo, c.company client_name, 
                       c.id client_project_owner_id, concat(c.name,' ',c.firstname) 
                       client_project_owner_name, c.phone client_project_owner_tel
-               FROM `projects` p,`clients` c  
-               WHERE p.client_id = c.id ";
+               FROM `projects` p,`clients` c, `projects_has_user` pu  
+               WHERE p.client_id = c.id 
+               AND p.id = pu.projects_id
+               AND pu.user_id = ".$jwt_token['user_id'];     
     $stmt = $this->db->query($sqlquery); 
-    while($row = $stmt->fetch()) {
-      $jsonData .= json_encode($row).",";    
+    
+    $jsonData="[";
+	  if($stmt->rowCount() >0){
+        while($row = $stmt->fetch()) {
+            $jsonData .= json_encode($row).",";    
+        }
+        $jsonData = substr ( $jsonData , 0, (strlen ($jsonData)-1) );
     }
-    //FIXME: replace that String hack with a solkution that generates a clean and secure JSON
-    $jsonData = substr_replace($jsonData, "]", strrpos ( $jsonData , ",")); 
-          
+	  $jsonData .= "]";  
+  
     $response->getBody()->write($jsonData);   
     return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
 });
@@ -231,13 +234,8 @@ $app->get('/openentry', function (Request $request, Response $response) {
   * check for a open entry and return project_id and start datetimestamp if found
   * used to mark project-logbutton green an set open-timestamp
   */
-      $getParams = $request->getQueryParams();
-      
-      //FIXME: take values from JWT-Token
-      $user_id = ($getParams['user_id'] != "") ? (int)$getParams['user_id'] : 3;
-      $logbox_mac = ($getParams['logbox_mac'] != "") ? $getParams['logbox_mac'] : "138.174.117.190";
-
-      $sqlquery="SELECT `project_id`,`start` FROM `entries` WHERE `logbox_mac`='$logbox_mac' AND `user_id`=$user_id AND stop IS NULL";
+      $jwt_token = (array)$request->getAttribute('jwt');
+      $sqlquery="SELECT `project_id`,`start` FROM `entries` WHERE `logbox_mac`='".$jwt_token['logbox_mac']."' AND `user_id`=".$jwt_token['user_id']." AND stop IS NULL";
       $stmt = $this->db->query($sqlquery); 
   	  $jsonData="[";
   	  if($stmt->rowCount() >0){
@@ -268,34 +266,29 @@ $app->post('/project/entry', function (Request $request, Response $response) {
 
 
       $jsonData="";
+      $jwt_token = (array)$request->getAttribute('jwt');
       $bodyData = $request->getParsedBody();
-      $user_id = (int)filter_var($bodyData['user_id'], FILTER_SANITIZE_STRING);
-      $logbox_mac = filter_var($bodyData['logbox_mac'], FILTER_SANITIZE_STRING);
+      
       $project_id = (int)filter_var($bodyData['project_id'], FILTER_SANITIZE_STRING);
       $go_to_standby = filter_var($bodyData['go_to_standby'], FILTER_SANITIZE_STRING);
-      
-      $user_id =  3;
-      $logbox_mac = "138.174.117.190";
-      
+      $notes = $this->db->quote( filter_var($bodyData['message'], FILTER_SANITIZE_STRING) );
       
       $logbox_ip = "unset";
       if (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] !=""){
           $logbox_ip = $_SERVER['REMOTE_ADDR'];
       }
       
-     //$jsonData.= $user_id." | ".$project_id." | ".$logbox_mac." | ".$go_to_standby." | ".$logbox_ip;
-      
 //IF entry has no STOP timestamp set it, bevore open new one
-      //$sqlquery="SELECT `id`,`logbox_mac`,`project_id`,`user_id`,`stop` FROM `entries` WHERE `logbox_mac`='$logbox_mac' AND `project_id`=$project_id AND `user_id`=$user_id AND stop IS NULL";
-      $sqlquery="SELECT `id`,`logbox_mac`,`project_id`,`user_id`,`stop` FROM `entries` WHERE `logbox_mac`='$logbox_mac' AND `user_id`=$user_id AND stop IS NULL";
+      $sqlquery="SELECT `id`,`logbox_mac`,`project_id`,`user_id`,`stop` FROM `entries` WHERE `logbox_mac`='".$jwt_token['logbox_mac']."' AND `user_id`=".$jwt_token['user_id']." AND stop IS NULL";
+      logall($sqlquery);
       $stmt = $this->db->query($sqlquery); 
       while($row = $stmt->fetch()) { 
-        $updatestmt = $this->db->query("UPDATE `entries` set `stop` = NOW() WHERE `id`=".$row['id']);
+        $updatestmt = $this->db->query("UPDATE `entries` set `stop` = NOW(), `notes` = $notes WHERE `id`=".$row['id']);
       }
 
 //then insert a new entry with just the START timestamp, if not have to go to standby   
       if($go_to_standby == 0){
-        $sqlquery="INSERT INTO `entries` (`logbox_mac`,`logbox_ip`,`project_id`,`user_id`,`start`) values('$logbox_mac', '$logbox_ip', $project_id, $user_id, NOW())";
+        $sqlquery="INSERT INTO `entries` (`logbox_mac`,`logbox_ip`,`project_id`,`user_id`,`start`) values('".$jwt_token['logbox_mac']."', '$logbox_ip', $project_id, ".$jwt_token['user_id'].", NOW())";
         $stmt = $this->db->query($sqlquery); 
       }
       
@@ -314,6 +307,37 @@ $app->post('/project/entry', function (Request $request, Response $response) {
     $response->getBody()->write($jsonData);   
     return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
 });
+
+
+function logall($valuesToSave, $logPost = false){
+
+  $valuesToSave = date("Y-m-j H:i:s").", ".$valuesToSave.", ";
+  $logFileName = "main.php.log";
+
+  if($logPost){
+      foreach($_POST as $key => $value){
+            $valuesToSave .= ",$value($key)";
+      }
+      
+      foreach($_GET as $key => $value){
+            $valuesToSave .= ",$value($key)";
+      }
+  }
+  
+  $valuesToSave .= ",{$_SERVER['REMOTE_ADDR']}";
+//log request with filename
+  if ($logFileName != ""){
+    if(!($datei = fopen("logs/".$logFileName,"a"))){
+      //echo("geht nicht");
+    }else{
+     fwrite($datei,"$valuesToSave\n");
+     fclose($datei);
+    }
+  }
+
+}
+
+
 
 
 $app->run();
