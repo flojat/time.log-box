@@ -43,7 +43,7 @@ function Main() {
 		
 		//load google charts
 		google.charts.load("current", {packages: ['corechart']});
-		google.charts.setOnLoadCallback(self.drawChart);
+		google.charts.setOnLoadCallback(self.drawChartWeek);
 	};
 	
 	/* gets data and draws the chart on the statistics pages */
@@ -52,6 +52,27 @@ function Main() {
 		var to = new Date($("#datepickerTo").val());
 		
 		self.apiClient.getStats({start_date: from.toJSON(), end_date: to.toJSON()}, function(statisticsData){
+			var data = google.visualization.arrayToDataTable(statisticsData);
+
+			var view = new google.visualization.DataView(data);
+
+			var options = {
+				title: "Worked actual week:",
+				width: 340,
+				height: 400,
+				legend: {position: 'top', maxLines: 4},
+				bar: {groupWidth: '75%'},
+				isStacked: true,
+			};
+
+			var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
+			chart.draw(view, options);
+		});
+	}
+	
+	/* gets data and draws the chart on the statistics page for the current week */
+	this.drawChartWeek = function() {
+		self.apiClient.getStatsWeek(function(statisticsData){
 			var data = google.visualization.arrayToDataTable(statisticsData);
 
 			var view = new google.visualization.DataView(data);
@@ -91,7 +112,7 @@ function Main() {
 			self.showProjectList();
 		});
 		
-		$('.footer button.standBy').click(this.standBy);
+		$('.footer button.standBy').click(self.standBy);
 	};
 	
 	/* gets projects from the server and displays them */
@@ -134,10 +155,32 @@ function Main() {
 	this.projectButtonClick = function(e){
 		projectid = $($(e.target).closest('li')).attr('project-id');
 		
-		self.apiClient.postEntry(projectid, 0, function(){
-			//reload project list
-			self.loadProjects();
-		});
+		var active = $("#gridlist li[active='true']");
+		
+		if(active && active.length > 0){
+			$("#comment").val('');
+			
+			$("#work-message-dialog").dialog({
+				modal: true,
+				buttons: {
+					Cancel: function() {
+					  $( this ).dialog( "close" );
+					},
+					"Send": function() {
+						$( this ).dialog( "close" );
+						self.apiClient.postEntry(projectid, 0, $("#comment").val(), function(){
+							//reload project list
+							setTimeout(self.loadProjects, 500);
+						});
+					}
+				}
+			});
+		} else {
+			self.apiClient.postEntry(projectid, 0, "", function(){
+				//reload project list
+				setTimeout(self.loadProjects, 500);
+			});
+		};
 	};
 	
 	/* logs out the user (removes jwt) */
@@ -152,13 +195,27 @@ function Main() {
 	*/
 	this.standBy = function(e){
 		//get active project
-		active = $("#gridlist li[active='true']");
+		var active = $("#gridlist li[active='true']");
 		
-		if(active){
-			projectid = active.attr('project-id');
-			self.apiClient.postEntry(projectid, 1, function(){
-				//reload project list
-				self.loadProjects();
+		if(active && active.length > 0){
+			var projectid = active.attr('project-id');
+			
+			$("#comment").val('');
+			
+			$("#work-message-dialog").dialog({
+				modal: true,
+				buttons: {
+					Cancel: function() {
+					  $( this ).dialog( "close" );
+					},
+					"Send": function() {
+						$( this ).dialog( "close" );
+						self.apiClient.postEntry(projectid, 1, $("#comment").val(), function(){
+							//reload project list
+							setTimeout(self.loadProjects, 500);
+						});
+					}
+				}
 			});
 		}
 	};
