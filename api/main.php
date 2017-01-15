@@ -23,7 +23,8 @@ $container['db'] = function ($c) {
 
 $app->add(new \Slim\Middleware\JwtAuthentication([
     "path" => ["/"],
-    "passthrough" => ["/stats/week","/projects","/openentry","/project/entry", "/stats", "/login"],
+    //"passthrough" => ["/stats/week","/projects","/openentry","/project/entry", "/stats", "/login"],
+    "passthrough" => ["/login"],
     //"secret" => getenv("JWT_SECRET"),
     "secret" => "devsecret",
     "attribute" => "jwt",
@@ -145,7 +146,6 @@ $app->get('/stats', function (Request $request, Response $response) {
         $jsonData.= ',["'.$day.'"'; 
         foreach ($projectsWithProgress as $projId => $projName) {
             $sqlquery="SELECT sum(round((TIME_TO_SEC(TIMEDIFF(`stop`,`start`))/60/60),2)) h from entries e WHERE `user_id`=$user_id AND DATE_FORMAT(`start`,'%a')='$day' AND e.project_id=".$projId." AND `start` >= '".$start_date."' AND `stop` <= ADDDATE('".$end_date."', +1) ";
-            logall($sqlquery);
             $stmt = $this->db->query($sqlquery);    
             while($row = $stmt->fetch()) {
               $jsonData.= ",".floatval (($row['h'] != "") ? $row['h'] : 0 ); 
@@ -217,14 +217,20 @@ $app->get('/projects', function (Request $request, Response $response) {
     // project_id(String), project_name(String), client_id(String), 
     // client_logo(img), client_name(String),  client_project_owner_id(String), 
     // client_project_owner_name(String), client_project_owner_tel(String),
+    
+    $jwt_token = (array)$request->getAttribute('jwt');
 
     $jsonData="[";
     $sqlquery="SELECT p.id project_id, p.name project_name, c.id client_id, 
                       c.logo client_logo, c.company client_name, 
                       c.id client_project_owner_id, concat(c.name,' ',c.firstname) 
                       client_project_owner_name, c.phone client_project_owner_tel
-               FROM `projects` p,`clients` c  
-               WHERE p.client_id = c.id ";
+               FROM `projects` p,`clients` c, `projects_has_user` pu  
+               WHERE p.client_id = c.id 
+               AND p.id = pu.projects_id
+               AND pu.user_id = ".$jwt_token['user_id'];
+    logall($sqlquery);
+               
     $stmt = $this->db->query($sqlquery); 
     while($row = $stmt->fetch()) {
       $jsonData .= json_encode($row).",";    
@@ -292,6 +298,13 @@ $app->post('/project/entry', function (Request $request, Response $response) {
       $logbox_mac = "138.174.117.190";
       
       
+      logall("notes=".$notes);
+       
+      $notes = $this->db->quote( filter_var($bodyData['message'], FILTER_SANITIZE_STRING) );
+      
+      logall("notes=".$notes);
+      
+      
       $logbox_ip = "unset";
       if (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] !=""){
           $logbox_ip = $_SERVER['REMOTE_ADDR'];
@@ -304,7 +317,7 @@ $app->post('/project/entry', function (Request $request, Response $response) {
       $sqlquery="SELECT `id`,`logbox_mac`,`project_id`,`user_id`,`stop` FROM `entries` WHERE `logbox_mac`='$logbox_mac' AND `user_id`=$user_id AND stop IS NULL";
       $stmt = $this->db->query($sqlquery); 
       while($row = $stmt->fetch()) { 
-        $updatestmt = $this->db->query("UPDATE `entries` set `stop` = NOW() WHERE `id`=".$row['id']);
+        $updatestmt = $this->db->query("UPDATE `entries` set `stop` = NOW(), `notes` = $notes WHERE `id`=".$row['id']);
       }
 
 //then insert a new entry with just the START timestamp, if not have to go to standby   
