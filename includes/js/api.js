@@ -95,9 +95,13 @@ function ApiClient(){
 			data: JSON.stringify({user: user, password: password})
 		}).done(function(data) {
 			localStorage.setItem("jwt", data.token);
-		   callback();
+		    callback();
 		}).fail(function(jqXHR, textStatus, errorThrown) {
-		   self.globalErrorHandler(jqXHR, textStatus, errorThrown);
+		    if(jqXHR.status == 401){
+				alert("Error: Login Failed, wrong username or password");
+			}else{
+				self.globalErrorHandler(jqXHR, textStatus, errorThrown);
+			}
 		});
 	};
 	
