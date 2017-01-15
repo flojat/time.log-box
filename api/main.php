@@ -71,11 +71,18 @@ $app->post('/login', function (Request $request, Response $response) {
         $token = JWT::encode($payload, $secret, "HS256");
         $data["status"] = "ok";
         $data["token"] = $token;
+        
+        return $response->withStatus(201)
+          ->withHeader("Content-Type", "application/json; charset=utf-8")
+          ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+   
+   
+    }else {
+    
+        return $response->withStatus(401)
+        ->withHeader("Content-Type", "application/json; charset=utf-8");
     }
     
-    return $response->withStatus(201)
-    ->withHeader("Content-Type", "application/json; charset=utf-8")
-    ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
 
