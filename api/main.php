@@ -194,12 +194,13 @@ $app->get('/openentry', function (Request $request, Response $response) {
       $stmt = $this->db->query($sqlquery); 
 	  
 	  $jsonData="[";
-	  
+
+	  if($stmt->rowCount() >0){
       while($row = $stmt->fetch()) {
         $jsonData .= json_encode($row).",";    
       }
-	  
-	  //$jsonData = substr_replace($jsonData, "", strrpos ( $jsonData , ",")); 
+      $jsonData = substr ( $jsonData , 0, (strlen ($jsonData)-1) );
+    }
 	  $jsonData .= "]";
       
     $response->getBody()->write($jsonData);   
