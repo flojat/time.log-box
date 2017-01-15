@@ -190,6 +190,13 @@ body {
 
 }
 
+.left-column .project-name {
+
+    font-weight: bold;
+    
+    margin: 0 0 6px;
+}
+
 .right-column{
 
     width: 50px;
