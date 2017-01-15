@@ -586,7 +586,7 @@ h2 {
 .loading-icon {
 	width: 200px;
     height: 200px;
-	background:url("/includes/images/loader.gif") no-repeat center center;
+	background:url("https://log-box.ch/webec/includes/images/loader.gif") no-repeat center center;
 	background-size:50%;
 	
 	opacity:0.8;

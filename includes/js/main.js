@@ -17,6 +17,10 @@ function Main() {
 		.ajaxStop(function () {
 			loading.hide();
 			loadingicon.hide();
+		})
+		.ajaxError(function() {
+			loading.hide();
+			loadingicon.hide();
 		});
 	
 	/* sets up everything for the Projects page */
