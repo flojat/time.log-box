@@ -6,6 +6,19 @@ function Main() {
 	this.apiClient = new ApiClient();
 	this.openEntries = [];
 	
+	var loading = $('#loader').hide();
+	var loadingicon = $('#loading-icon').hide();
+	
+	$(document)
+		.ajaxStart(function () {
+			loading.show();
+			loadingicon.show();
+		})
+		.ajaxStop(function () {
+			loading.hide();
+			loadingicon.hide();
+		});
+	
 	/* sets up everything for the Projects page */
 	this.setupLoginPage = function(){
 		$("#login").click(function(){
