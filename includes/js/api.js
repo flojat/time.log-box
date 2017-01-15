@@ -71,6 +71,19 @@ function ApiClient(){
 		});
 	};
 	
+	/* gets time stats for the current user and current week */
+	this.getStatsWeek = function(callback){
+		$.ajax({
+			url: this.apiUrl + this.statsEndpoint + '/week',
+			cache: false,
+			beforeSend : function(xhr) {xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem('jwt'));}
+		}).done(function(data) {
+		   callback(data);
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+		   self.globalErrorHandler(jqXHR, textStatus, errorThrown);
+		});
+	};
+	
 	/* login to page, returns jwt */
 	this.login = function(user, password, callback){
 		$.ajax({
