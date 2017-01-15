@@ -107,6 +107,19 @@ function ApiClient(){
 			case 401:
 				//unauthorized --> wrong/expired login
 				window.location.replace("login.html");
+				break;
+			case 500:
+				alert("Server Error: Please try again later or contact an administrator if the problem persists");
+				break;
+			case 403:
+				alert("Error: Not enough rights to access this resource");
+				break;
+			case 404:
+				alert("Error: The requested resource was not found");
+				break;
+			case 400:
+				alert("Error: Bad Server Request");
+				break;
 			default:
 				alert( "error: " + errorThrown );
 		}
