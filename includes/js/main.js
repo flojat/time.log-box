@@ -136,7 +136,7 @@ function Main() {
 		
 		var active = $("#gridlist li[active='true']");
 		
-		if(active){
+		if(active && active.length > 0){
 			$("#comment").val('');
 			
 			$("#work-message-dialog").dialog({
@@ -159,11 +159,7 @@ function Main() {
 				//reload project list
 				setTimeout(self.loadProjects, 500);
 			});
-		}
-		
-		
-		
-		
+		};
 	};
 	
 	/* logs out the user (removes jwt) */
@@ -180,7 +176,7 @@ function Main() {
 		//get active project
 		var active = $("#gridlist li[active='true']");
 		
-		if(active){
+		if(active && active.length > 0){
 			var projectid = active.attr('project-id');
 			
 			$("#comment").val('');
