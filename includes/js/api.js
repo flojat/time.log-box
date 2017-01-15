@@ -107,6 +107,7 @@ function ApiClient(){
 			case 401:
 				//unauthorized --> wrong/expired login
 				window.location.replace("login.html");
+				break;
 			default:
 				alert( "error: " + errorThrown );
 		}
