@@ -118,9 +118,11 @@ $app->get('/stats', function (Request $request, Response $response) {
     //FIXME Insert dbquery to build this Array!
     //$arrayDataTable =  array('WEEKDAY','Mon','Tue','Wed','Thu','Fri','Sat','Sun');
     $projectsWithProgress  = [
-    '9' => ["Proj 1"],
-    '10' => ["Proj 2"],
-    '11' => ["Proj 3"],
+    '9' => ["Allgem. log-box"],
+    '10' => ["SLIM log-box"],
+    '11' => ["Doku log-box"],
+    '12' => ["webGUI log-box "],
+    '13' => ["HW für log-box"],
     ];
     
     $jsonData .='[["WEEKDAY"';
@@ -169,9 +171,11 @@ $app->get('/stats/week', function (Request $request, Response $response) {
     //FIXME Insert dbquery to build this Array!
     //$arrayDataTable =  array('WEEKDAY','Mon','Tue','Wed','Thu','Fri','Sat','Sun');
     $projectsWithProgress  = [
-    '9' => ["Proj 1"],
-    '10' => ["Proj 2"],
-    '11' => ["Proj 3"],
+    '9' => ["Allgem. log-box"],
+    '10' => ["SLIM log-box"],
+    '11' => ["Doku log-box"],
+    '12' => ["webGUI log-box "],
+    '13' => ["HW für log-box"],
     ];
     
     $jsonData .='[["WEEKDAY"';
@@ -183,7 +187,7 @@ $app->get('/stats/week', function (Request $request, Response $response) {
     foreach ($dayOfWeek as &$day) {
         $jsonData.= ',["'.$day.'"'; 
         foreach ($projectsWithProgress as $projId => $projName) {
-            $sqlquery="SELECT sum(round((TIME_TO_SEC(TIMEDIFF(`stop`,`start`))/60/60),2)) h from entries e WHERE `user_id`=".$jwt_token['user_id']." AND DATE_FORMAT(`start`,'%a')='$day' AND e.project_id=".$projId;
+            $sqlquery="SELECT sum(round((TIME_TO_SEC(TIMEDIFF(`stop`,`start`))/60/60),2)) h from entries e WHERE YEARWEEK(`start`) = YEARWEEK(NOW()) AND`user_id`=".$jwt_token['user_id']." AND DATE_FORMAT(`start`,'%a')='$day' AND e.project_id=".$projId;
             $stmt = $this->db->query($sqlquery);    
             while($row = $stmt->fetch()) {
               $jsonData.= ",".floatval (($row['h'] != "") ? $row['h'] : 0 ); 
