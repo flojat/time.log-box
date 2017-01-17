@@ -397,32 +397,4 @@ $app->post('/project/entry', function (Request $request, Response $response) {
     return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
 });
 
-
-
-function logall($valuesToSave, $logPost = false){
-  $valuesToSave = date("Y-m-j H:i:s").", ".$valuesToSave.", ";
-  $logFileName = "main.php.log";
-  if($logPost){
-      foreach($_POST as $key => $value){
-            $valuesToSave .= ",$value($key)";
-      }
-      
-      foreach($_GET as $key => $value){
-            $valuesToSave .= ",$value($key)";
-      }
-  }
-  
-  $valuesToSave .= ",{$_SERVER['REMOTE_ADDR']}";
-//log request with filename
-  if ($logFileName != ""){
-    if(!($datei = fopen("logs/".$logFileName,"a"))){
-      //echo("geht nicht");
-    }else{
-     fwrite($datei,"$valuesToSave\n");
-     fclose($datei);
-    }
-  }
-}
-
-
 $app->run();

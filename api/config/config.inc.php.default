@@ -1,8 +1,20 @@
 <?php 
+/*
+ * This file is part of the time.log-box package.
+ *
+ * (c) F.Jaton / log-box.ch <question@log-box.ch> / 17.01.2017
+ *
+ * This SOftware is distributed under GNU GENERAL PUBLIC LICENSE GPL3 
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ * 
+ * THIS FILE is the config-file for SLIM Basic API  
+ */
+ 
 $config['displayErrorDetails'] = true;
 $config['db']['host']   = "my.dbserver.net";
 $config['db']['user']   = "dbuser";
 $config['db']['pass']   = "dbpass";
 $config['db']['dbname'] = "dbname";
 
-$config['jwt']['secret'] = "dontPutItToGit!";
+$config['secret'] = "dontPutItToGit!";

@@ -1,3 +1,15 @@
+ #
+ # This file is part of the time.log-box package.
+ #
+ # (c) F.Jaton / log-box.ch <question@log-box.ch> / 17.01.2017
+ #
+ # This SOftware is distributed under GNU GENERAL PUBLIC LICENSE GPL3 
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.  
+ #
+
+
+
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
