@@ -37,12 +37,15 @@ $app->post('/login', function (Request $request, Response $response) {
       $user = filter_var($bodyData['user'], FILTER_SANITIZE_STRING);
       $password = filter_var($bodyData['password'], FILTER_SANITIZE_STRING);
       $pwd = sha1 ($password);
-
-      $sqlquery=" SELECT id, email, name, firstname
-                  FROM user
-                  WHERE user.email =   '{$user}'
-                  AND user.password =   '{$pwd}' ";
-      $stmt = $this->db->query($sqlquery); 
+      
+      $stmt = $this->db->prepare("SELECT id, email, name, firstname
+                                  FROM user
+                                  WHERE user.email=:user
+                                  AND user.password=:pwd ");
+                                  
+      $stmt->bindValue(':user', $user, PDO::PARAM_STR);
+      $stmt->bindValue(':pwd', $pwd, PDO::PARAM_STR);
+      $stmt->execute();
       
       if($row = $stmt->fetch()) { 
        
@@ -134,12 +137,25 @@ $app->get('/stats', function (Request $request, Response $response) {
     foreach ($dayOfWeek as &$day) {
         $jsonData.= ',["'.$day.'"'; 
         foreach ($projectsWithProgress as $projId => $projName) {
-            $sqlquery="SELECT sum(round((TIME_TO_SEC(TIMEDIFF(`stop`,`start`))/60/60),2)) h from entries e WHERE `user_id`=".$jwt_token['user_id']." AND DATE_FORMAT(`start`,'%a')='$day' AND e.project_id=".$projId." AND `start` >= '".$start_date."' AND `stop` <= ADDDATE('".$end_date."', +1) ";
-            $stmt = $this->db->query($sqlquery);    
-            while($row = $stmt->fetch()) {
-              $jsonData.= ",".floatval (($row['h'] != "") ? $row['h'] : 0 ); 
-            }
-            $stmt = null;
+          $stmt = $this->db->prepare("SELECT sum(round((TIME_TO_SEC(TIMEDIFF(`stop`,`start`))/60/60),2)) h 
+          FROM entries e
+          WHERE `user_id`=:user_id
+          AND DATE_FORMAT(`start`,'%a')=:day 
+          AND e.project_id=:projId 
+          AND `start` >= :start_date 
+          AND `stop` <= ADDDATE(:end_date, +1)"); 
+             
+          $stmt->bindValue(':user_id', $jwt_token['user_id'], PDO::PARAM_STR);
+          $stmt->bindValue(':day', $day, PDO::PARAM_STR);
+          $stmt->bindValue(':projId', $projId, PDO::PARAM_INT);
+          $stmt->bindValue(':start_date', $start_date, PDO::PARAM_STR);
+          $stmt->bindValue(':end_date', $end_date, PDO::PARAM_STR);
+          $stmt->execute();
+   
+          while($row = $stmt->fetch()) {
+            $jsonData.= ",".floatval (($row['h'] != "") ? $row['h'] : 0 ); 
+          }
+          $stmt = null;
         }
         $jsonData.= "]"; 
     }
@@ -187,7 +203,13 @@ $app->get('/stats/week', function (Request $request, Response $response) {
     foreach ($dayOfWeek as &$day) {
         $jsonData.= ',["'.$day.'"'; 
         foreach ($projectsWithProgress as $projId => $projName) {
-            $sqlquery="SELECT sum(round((TIME_TO_SEC(TIMEDIFF(`stop`,`start`))/60/60),2)) h from entries e WHERE YEARWEEK(`start`) = YEARWEEK(NOW()) AND`user_id`=".$jwt_token['user_id']." AND DATE_FORMAT(`start`,'%a')='$day' AND e.project_id=".$projId;
+           
+            $sqlquery="SELECT sum(round((TIME_TO_SEC(TIMEDIFF(`stop`,`start`))/60/60),2)) h 
+            FROM entries e WHERE YEARWEEK(`start`) = YEARWEEK(NOW()) 
+            AND`user_id`=".$jwt_token['user_id']." 
+            AND DATE_FORMAT(`start`,'%a')='$day' 
+            AND e.project_id=".$projId;
+            
             $stmt = $this->db->query($sqlquery);    
             while($row = $stmt->fetch()) {
               $jsonData.= ",".floatval (($row['h'] != "") ? $row['h'] : 0 ); 
@@ -219,6 +241,7 @@ $app->get('/projects', function (Request $request, Response $response) {
                       client_project_owner_name, c.phone client_project_owner_tel
                FROM `projects` p,`clients` c, `projects_has_user` pu  
                WHERE p.client_id = c.id 
+               AND p.isactive = TRUE
                AND p.id = pu.projects_id
                AND pu.user_id = ".$jwt_token['user_id'];     
     $stmt = $this->db->query($sqlquery); 

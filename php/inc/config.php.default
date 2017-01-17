@@ -1,0 +1,17 @@
+<?php
+
+//Database
+$_config_mysql_host="my.dbserver.net";
+$_config_mysql_user="dbuser";
+$_config_mysql_password="dbpass!";
+$_config_mysql_db="dbname";
+
+$conn=mysql_connect($_config_mysql_host,$_config_mysql_user,$_config_mysql_password);
+mysql_select_db($_config_mysql_db);
+
+$_config_tbl_bgcolor1="CCCCCC";
+$_config_tbl_bgcolor2="EEEEEE";
+$_config_tbl_bghover="CCFFCC";
+
+
+?>

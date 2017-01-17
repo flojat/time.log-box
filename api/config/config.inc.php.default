@@ -1,0 +1,6 @@
+<?php 
+$config['displayErrorDetails'] = true;
+$config['db']['host']   = "my.dbserver.net";
+$config['db']['user']   = "dbuser";
+$config['db']['pass']   = "dbpass";
+$config['db']['dbname'] = "dbname";
